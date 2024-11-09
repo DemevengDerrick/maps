@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36" version="24.8.4">
   <diagram name="Page-1" id="5FTDPa6ZPerxx-bNa-OX">
-    <mxGraphModel dx="733" dy="412" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+    <mxGraphModel dx="860" dy="371" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -37,7 +37,7 @@
         <mxCell id="sB1fadUoKpV7pgVS4pwK-15" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://freesvg.org/img/WWW-Icon.png;strokeWidth=3;fillColor=#e1d5e7;strokeColor=#9673a6;shadow=1;" vertex="1" parent="1">
           <mxGeometry x="350" y="200" width="100" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="sB1fadUoKpV7pgVS4pwK-19" value="AUTOMATED JOB SEARCH AND APPLICATION WORKFLOW" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="sB1fadUoKpV7pgVS4pwK-19" value="AUTOMATED JOB SEARCH AND APPLICATION WORKFLOW" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;verticalAlign=middle;horizontal=1;fontSize=17;labelBackgroundColor=none;fontColor=#0d0c0c;" vertex="1" parent="1">
           <mxGeometry x="280" y="152.5" width="540" height="37.5" as="geometry" />
         </mxCell>
       </root>
