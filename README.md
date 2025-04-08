@@ -30,3 +30,5 @@ Repository of few of my Analysis and Map designs
 
 ![image](https://github.com/user-attachments/assets/6ab24703-e7ff-46ae-98fd-9eb0a2fd4621)
 
+## Pacific Ocean Countries
+![ocean_pacific2](https://github.com/user-attachments/assets/e0604083-8703-4028-8529-54847d2ccb58)
