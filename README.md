@@ -1,5 +1,5 @@
-# maps
-Repository of few of my Analysis and Map designs
+# PORTFOLIO OF DATA VISUALIZATIONS
+Repository of few of my Data Visualization projects. 
 
 ## Accessibility to Education
 ![image](https://github.com/user-attachments/assets/c62be97b-ee3f-4f74-ac72-b9d29e055256)
