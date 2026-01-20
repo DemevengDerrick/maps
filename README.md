@@ -6,7 +6,7 @@ Repository of few of my Data Visualization projects.
 ![image](https://github.com/user-attachments/assets/4cc297ad-5676-40be-b325-3f267dfec8f6)
 
 ### Western & Central Africa
-![image](https://github.com/user-attachments/assets/0b22ab1d-93e9-4e46-9a21-75b334a8f38a)
+![image](https://github.com/user-attachments/assets/65f71559-45a5-47ce-94a6-6794bc7255bd)
 
 ## Accessibility to Education in Dschang, Cameroon
 ![image](https://github.com/user-attachments/assets/c62be97b-ee3f-4f74-ac72-b9d29e055256)
