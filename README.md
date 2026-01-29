@@ -2,18 +2,23 @@
 This page showcases selected data visualization and geospatial analysis projects developed to explore population dynamics, health outcomes, accessibility, and environmental risks. The work demonstrates the use of statistical analysis, GIS, and spatial modeling to transform complex data into clear, policy-relevant insights that support planning, monitoring, and decision-maki.
 .
 ## Cameroon Birth and Death Rates from 1990 - 2024
+This chart illustrates long-term trends in Cameroon’s crude birth and death rates from 1960 to 2024. Birth rates remain consistently higher than death rates, confirming sustained natural population growth, while the steady decline in both indicators reflects a gradual demographic transition driven by improved survival, health conditions, and slowly declining fertility over time.
 ![image](https://github.com/user-attachments/assets/99ef7470-9a81-45e2-a93e-8fc4ecb3dc9b)
 
 ## Cameroon Maternal, Under-5, Child, and Infant Mortality from 1990 - 2024
+This figure shows substantial long-term improvements in maternal, infant, neonatal, and under-five survival in Cameroon from 1990 to 2024. While maternal and child mortality have declined markedly over time, the slower reduction in neonatal mortality highlights persistent risks in the first days of life, underscoring the need for sustained investments in maternal care, skilled birth attendance, and newborn health services to accelerate progress and close remaining gaps.
 ![image](https://github.com/user-attachments/assets/49066f49-d7bd-4055-a792-1acf8472b524)
 
 ## Cameroon Dependency Ratio from 1990 - 2024
+This chart illustrates how Cameroon’s growing population has increased pressure on the working-age group (15–64) from 1960 to 2024, as they support both a large child population (0–14) and a gradually expanding older population (65+). Despite growth in the workforce for both women and men, the persistent size of the child population and the emerging rise in older adults highlight a sustained demographic burden, underscoring the importance of job creation, productivity gains, and strengthened social protection systems.
 ![image](https://github.com/user-attachments/assets/6594dc12-a00d-43d8-993f-d203a2b88517)
 
 ## HIV Incidence and Prevalence in Cameroon among youths from 1990 - 2024
+This visualization shows the evolution of HIV incidence and prevalence among young people aged 15–24 in Cameroon from 1990 to 2024. After a rapid rise and peak in the late 1990s and early 2000s, both incidence and prevalence decline steadily, reflecting significant progress in HIV prevention and treatment, while the persistently higher prevalence among young women highlights ongoing gender disparities and the need for targeted youth- and gender-responsive interventions.
 ![image](https://github.com/user-attachments/assets/1dd492d5-1a99-47d0-af9d-598ffa33da7f)
 
 ## Cameroon's GDP growth from 1960 - 2024 compared to Western and Central African Countries
+This chart compares Cameroon’s GDP growth from 1960 to 2024 with other CEMAC countries, highlighting Cameroon’s more sustained and resilient economic expansion, particularly since the early 2000s. While peer economies show greater volatility and slower long-term growth, Cameroon’s steady trajectory has widened its economic lead within the sub-region despite global and regional shocks.
 ![image](https://github.com/user-attachments/assets/4cc297ad-5676-40be-b325-3f267dfec8f6)
 
 ## Cameroon's GDP growth from 1960 - 2024 compared to other Central African Countries
