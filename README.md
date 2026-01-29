@@ -1,7 +1,10 @@
 # PORTFOLIO OF DATA VISUALIZATIONS
 Repository of few of my Data Visualization projects.
 
-## Cameroon Dependency Ratio 1990 - 2024
+## Cameroon Maternal, Under-5, Child, and Infant Mortality from 1990 - 2024
+![image](https://github.com/user-attachments/assets/49066f49-d7bd-4055-a792-1acf8472b524)
+
+## Cameroon Dependency Ratio from 1990 - 2024
 ![image](https://github.com/user-attachments/assets/6594dc12-a00d-43d8-993f-d203a2b88517)
 
 ## HIV Incidence and Prevalence in Cameroon among youths from 1990 - 2024
