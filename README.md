@@ -1,6 +1,9 @@
 # PORTFOLIO OF DATA VISUALIZATIONS
 Repository of few of my Data Visualization projects.
 
+## Cameroon Dependency Ratio 1990 - 2024
+![image](https://github.com/user-attachments/assets/6594dc12-a00d-43d8-993f-d203a2b88517)
+
 ## HIV Incidence and Prevalence in Cameroon among youths from 1990 - 2024
 ![image](https://github.com/user-attachments/assets/dff6a6d1-7a50-45f7-b4df-a96b927f0b3e)
 
