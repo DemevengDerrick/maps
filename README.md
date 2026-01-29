@@ -1,6 +1,6 @@
 # PORTFOLIO OF DATA VISUALIZATIONS
-Repository of few of my Data Visualization projects.
-
+This page showcases selected data visualization and geospatial analysis projects developed to explore population dynamics, health outcomes, accessibility, and environmental risks. The work demonstrates the use of statistical analysis, GIS, and spatial modeling to transform complex data into clear, policy-relevant insights that support planning, monitoring, and decision-maki.
+.
 ## Cameroon Birth and Death Rates from 1990 - 2024
 ![image](https://github.com/user-attachments/assets/99ef7470-9a81-45e2-a93e-8fc4ecb3dc9b)
 
