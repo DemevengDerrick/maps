@@ -11,13 +11,12 @@ Repository of few of my Data Visualization projects.
 ![image](https://github.com/user-attachments/assets/6594dc12-a00d-43d8-993f-d203a2b88517)
 
 ## HIV Incidence and Prevalence in Cameroon among youths from 1990 - 2024
-![image](https://github.com/user-attachments/assets/dff6a6d1-7a50-45f7-b4df-a96b927f0b3e)
+![image](https://github.com/user-attachments/assets/1dd492d5-1a99-47d0-af9d-598ffa33da7f)
 
-## Cameroon's GDP growth from 1960 - 2024 compared to other Countries
-### CEMAC
+## Cameroon's GDP growth from 1960 - 2024 compared to Western and Central African Countries
 ![image](https://github.com/user-attachments/assets/4cc297ad-5676-40be-b325-3f267dfec8f6)
 
-### Western & Central Africa
+## Cameroon's GDP growth from 1960 - 2024 compared to other Central African Countries
 ![image](https://github.com/user-attachments/assets/65f71559-45a5-47ce-94a6-6794bc7255bd)
 
 ![image](https://github.com/user-attachments/assets/b16b3292-aa30-4ada-b4e0-d7dc41533a9f)
