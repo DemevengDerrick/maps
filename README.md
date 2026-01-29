@@ -1,6 +1,9 @@
 # PORTFOLIO OF DATA VISUALIZATIONS
 Repository of few of my Data Visualization projects.
 
+## Cameroon Birth and Death Rates from 1990 - 2024
+![image](https://github.com/user-attachments/assets/99ef7470-9a81-45e2-a93e-8fc4ecb3dc9b)
+
 ## Cameroon Maternal, Under-5, Child, and Infant Mortality from 1990 - 2024
 ![image](https://github.com/user-attachments/assets/49066f49-d7bd-4055-a792-1acf8472b524)
 
