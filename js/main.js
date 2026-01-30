@@ -436,22 +436,21 @@ function initContactForm() {
             return;
         }
 
-        // Simulate form submission
-        const submitBtn = form.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-        submitBtn.disabled = true;
+        // Construct mailto link
+        const subject = encodeURIComponent(data.subject || 'Portfolio Contact');
+        const body = encodeURIComponent(
+            `Name: ${data.name}\n` +
+            `Email: ${data.email}\n\n` +
+            `Message:\n${data.message}`
+        );
+        const mailtoLink = `mailto:demeveng@gmail.com?subject=${subject}&body=${body}`;
 
-        setTimeout(() => {
-            submitBtn.innerHTML = '<i class="fas fa-check"></i> Sent!';
-            showNotification('Thank you for your message! I will get back to you soon.', 'success');
-            form.reset();
+        // Open email client
+        window.location.href = mailtoLink;
 
-            setTimeout(() => {
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            }, 2000);
-        }, 1500);
+        // Show confirmation
+        showNotification('Opening your email client...', 'success');
+        form.reset();
     });
 }
 

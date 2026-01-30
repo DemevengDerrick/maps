@@ -416,6 +416,14 @@ ul {
     color: var(--text-light);
 }
 
+.profile-photo {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
 .about-text h3 {
     font-size: 1.5rem;
     color: var(--primary-color);
@@ -1105,6 +1113,15 @@ ul {
 
 .contact-item p {
     color: var(--text-light);
+}
+
+.contact-item p a {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.contact-item p a:hover {
+    text-decoration: underline;
 }
 
 .social-links {
