@@ -833,6 +833,30 @@ ul {
     text-decoration: underline;
 }
 
+.publications-more {
+    text-align: center;
+    margin-top: 50px;
+    padding-top: 40px;
+    border-top: 1px solid var(--border-color);
+}
+
+.publications-more p {
+    color: var(--text-light);
+    margin-bottom: 20px;
+    font-size: 1.05rem;
+}
+
+.publications-more .btn-secondary {
+    background: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+}
+
+.publications-more .btn-secondary:hover {
+    background: var(--primary-color);
+    color: var(--text-white);
+}
+
 /* ===== Portfolio Section ===== */
 .portfolio {
     background: var(--bg-alt);
