@@ -333,6 +333,12 @@ ul {
     transform: translateY(-3px);
 }
 
+.hero-social .social-icon-x {
+    width: 1.2rem;
+    height: 1.2rem;
+    filter: brightness(0) invert(1);
+}
+
 .scroll-indicator {
     position: absolute;
     bottom: 30px;
@@ -1434,6 +1440,16 @@ ul {
 
 .social-link:hover i {
     color: var(--text-white);
+}
+
+.social-link .social-icon-x {
+    width: 1.2rem;
+    height: 1.2rem;
+    filter: invert(39%) sepia(85%) saturate(1935%) hue-rotate(210deg) brightness(101%) contrast(91%);
+}
+
+.social-link:hover .social-icon-x {
+    filter: brightness(0) invert(1);
 }
 
 /* Contact Form */
