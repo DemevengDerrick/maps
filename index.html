@@ -7,9 +7,11 @@
     <meta name="keywords" content="Spatial Data Science, GIS, Data Visualization, UNFPA, Public Health, Geospatial Analysis, Remote Sensing, R, Python, KNIME">
     <meta name="author" content="Derrick Chefor Ymele Demeveng">
     <title>Derrick Demeveng | Spatial Data Scientist</title>
-    <link rel="stylesheet" href="css/styles.css?v=2.3">
+    <link rel="stylesheet" href="css/styles.css?v=2.5">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
     <!-- Navigation -->
@@ -24,6 +26,7 @@
                 <li><a href="#about" class="nav-link">About</a></li>
                 <li><a href="#education" class="nav-link">Education</a></li>
                 <li><a href="#experience" class="nav-link">Experience</a></li>
+                <li><a href="#countries-visited" class="nav-link">Countries</a></li>
                 <li><a href="#skills" class="nav-link">Skills</a></li>
                 <li><a href="#publications" class="nav-link">Publications</a></li>
                 <li><a href="#portfolio" class="nav-link">Portfolio</a></li>
@@ -285,6 +288,39 @@
             </div>
         </div>
     </div>
+
+    <!-- Countries Visited Section -->
+    <section id="countries-visited" class="section countries-visited">
+        <div class="container">
+            <h2 class="section-title">Countries Visited</h2>
+            <p class="countries-subtitle">I have had the privilege of working and traveling across <strong>25 countries</strong> on <strong>5 continents</strong></p>
+            <div class="countries-stats">
+                <div class="country-stat">
+                    <span class="country-stat-number">20</span>
+                    <span class="country-stat-label">African Countries</span>
+                </div>
+                <div class="country-stat">
+                    <span class="country-stat-number">2</span>
+                    <span class="country-stat-label">North America</span>
+                </div>
+                <div class="country-stat">
+                    <span class="country-stat-number">1</span>
+                    <span class="country-stat-label">South America</span>
+                </div>
+                <div class="country-stat">
+                    <span class="country-stat-number">1</span>
+                    <span class="country-stat-label">Middle East</span>
+                </div>
+                <div class="country-stat">
+                    <span class="country-stat-number">1</span>
+                    <span class="country-stat-label">Caribbean</span>
+                </div>
+            </div>
+        </div>
+        <div class="countries-map-container">
+            <div id="countriesMap"></div>
+        </div>
+    </section>
 
     <!-- Skills Section -->
     <section id="skills" class="section skills">

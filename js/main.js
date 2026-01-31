@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initExperienceModal();
     initContactForm();
     initAnimations();
+    initCountriesMap();
 });
 
 /**
@@ -613,6 +614,128 @@ function initExperienceModal() {
             closeExperienceModal();
         }
     });
+}
+
+/**
+ * Countries Map Module
+ * Displays an interactive map of visited countries
+ */
+function initCountriesMap() {
+    const mapContainer = document.getElementById('countriesMap');
+    if (!mapContainer || typeof L === 'undefined') return;
+
+    // Initialize the map centered on Africa (zoom only via buttons)
+    const map = L.map('countriesMap', {
+        center: [10, 20],
+        zoom: 2,
+        minZoom: 2,
+        maxZoom: 6,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        touchZoom: false,
+        dragging: true
+    });
+
+    // Add tile layer (CartoDB Positron for clean look)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 20
+    }).addTo(map);
+
+    // Country data with coordinates for markers
+    const visitedCountries = {
+        'MRT': { name: 'Mauritania', coords: [20.3, -10.5] },
+        'SEN': { name: 'Senegal', coords: [14.5, -14.5] },
+        'GMB': { name: 'Gambia', coords: [13.5, -15.5] },
+        'GHA': { name: 'Ghana', coords: [7.9, -1.0] },
+        'CIV': { name: "Côte d'Ivoire", coords: [7.5, -5.5] },
+        'TGO': { name: 'Togo', coords: [8.6, 0.8] },
+        'BEN': { name: 'Benin', coords: [9.3, 2.3] },
+        'NGA': { name: 'Nigeria', coords: [9.1, 8.7] },
+        'BFA': { name: 'Burkina Faso', coords: [12.2, -1.5] },
+        'CMR': { name: 'Cameroon', coords: [5.9, 12.4] },
+        'GAB': { name: 'Gabon', coords: [-0.8, 11.6] },
+        'TCD': { name: 'Chad', coords: [15.5, 19.0] },
+        'COG': { name: 'Republic of Congo', coords: [-0.2, 15.8] },
+        'COD': { name: 'DR Congo', coords: [-4.0, 21.8] },
+        'KEN': { name: 'Kenya', coords: [-0.5, 38.0] },
+        'TZA': { name: 'Tanzania', coords: [-6.4, 34.9] },
+        'MWI': { name: 'Malawi', coords: [-13.3, 34.3] },
+        'MDG': { name: 'Madagascar', coords: [-18.9, 46.9] },
+        'RWA': { name: 'Rwanda', coords: [-1.9, 29.9] },
+        'ETH': { name: 'Ethiopia', coords: [9.1, 40.5] },
+        'PRY': { name: 'Paraguay', coords: [-23.4, -58.4] },
+        'QAT': { name: 'Qatar', coords: [25.4, 51.2] },
+        'DOM': { name: 'Dominican Republic', coords: [18.7, -70.2] },
+        'USA': { name: 'United States', coords: [37.1, -95.7] },
+        'CAN': { name: 'Canada', coords: [56.1, -106.3] }
+    };
+
+    const visitedCodes = Object.keys(visitedCountries);
+
+    // Custom marker icon
+    const markerIcon = L.divIcon({
+        className: 'country-marker',
+        html: '<div class="marker-dot"></div>',
+        iconSize: [12, 12],
+        iconAnchor: [6, 6]
+    });
+
+    // Fetch GeoJSON data for world countries
+    fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+        .then(response => response.json())
+        .then(data => {
+            L.geoJSON(data, {
+                style: function(feature) {
+                    const countryCode = feature.properties.ISO_A3;
+                    const isVisited = visitedCodes.includes(countryCode);
+                    return {
+                        fillColor: isVisited ? '#2563eb' : '#e2e8f0',
+                        weight: 1,
+                        opacity: 1,
+                        color: '#ffffff',
+                        fillOpacity: isVisited ? 0.7 : 0.3
+                    };
+                },
+                onEachFeature: function(feature, layer) {
+                    const countryCode = feature.properties.ISO_A3;
+                    if (visitedCodes.includes(countryCode)) {
+                        const countryData = visitedCountries[countryCode];
+                        layer.on({
+                            mouseover: function(e) {
+                                e.target.setStyle({
+                                    fillOpacity: 0.9,
+                                    weight: 2
+                                });
+                            },
+                            mouseout: function(e) {
+                                e.target.setStyle({
+                                    fillOpacity: 0.7,
+                                    weight: 1
+                                });
+                            }
+                        });
+                    }
+                }
+            }).addTo(map);
+
+            // Add markers at center of each visited country
+            Object.keys(visitedCountries).forEach(code => {
+                const country = visitedCountries[code];
+                const marker = L.marker(country.coords, { icon: markerIcon })
+                    .addTo(map)
+                    .bindTooltip(country.name, {
+                        permanent: false,
+                        direction: 'top',
+                        offset: [0, -5],
+                        className: 'country-tooltip'
+                    });
+            });
+        })
+        .catch(error => {
+            console.error('Error loading countries GeoJSON:', error);
+        });
 }
 
 /**
