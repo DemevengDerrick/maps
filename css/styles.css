@@ -156,10 +156,14 @@ ul {
 }
 
 .nav-logo {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    font-family: var(--font-display);
+    display: flex;
+    align-items: center;
+}
+
+.nav-logo img {
+    height: 45px;
+    width: auto;
+    object-fit: contain;
 }
 
 .nav-menu {
@@ -562,6 +566,259 @@ ul {
 
 .certification-list i {
     color: var(--accent-color);
+}
+
+/* ===== Experience Carousel Section ===== */
+.experience-section {
+    background: var(--bg-color);
+    overflow: hidden;
+    padding-bottom: 80px;
+}
+
+.experience-subtitle {
+    text-align: center;
+    color: var(--text-light);
+    font-size: 1.1rem;
+    margin-top: -40px;
+    margin-bottom: 50px;
+}
+
+.experience-carousel-wrapper {
+    width: 100%;
+    overflow: hidden;
+    padding: 20px 0;
+}
+
+.experience-carousel {
+    position: relative;
+    width: 100%;
+}
+
+.experience-track {
+    display: flex;
+    gap: 30px;
+    animation: scroll-left 40s linear infinite;
+    width: max-content;
+}
+
+.experience-track:hover {
+    animation-play-state: paused;
+}
+
+@keyframes scroll-left {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.experience-item {
+    flex-shrink: 0;
+    width: 220px;
+    background: var(--bg-alt);
+    border-radius: 16px;
+    padding: 30px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 2px solid transparent;
+}
+
+.experience-item:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-color);
+    background: var(--bg-color);
+}
+
+.experience-logo {
+    width: 120px;
+    height: 80px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-color);
+    border-radius: 12px;
+    padding: 15px;
+}
+
+.experience-logo img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.experience-logo.ggf-logo {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+}
+
+.experience-logo.ggf-logo span {
+    color: var(--text-white);
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: 1px;
+}
+
+.experience-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-color);
+    line-height: 1.4;
+}
+
+/* Experience Modal Styles */
+.experience-modal-content {
+    max-width: 800px;
+}
+
+.experience-modal-header {
+    display: flex;
+    gap: 25px;
+    align-items: flex-start;
+    padding: 30px;
+    background: linear-gradient(135deg, var(--bg-alt), var(--bg-color));
+    border-radius: 20px 20px 0 0;
+}
+
+.experience-modal-logo {
+    width: 100px;
+    height: 80px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-color);
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: var(--shadow);
+}
+
+.experience-modal-logo img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.experience-modal-logo.text-logo {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+}
+
+.experience-modal-logo.text-logo span {
+    color: var(--text-white);
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.experience-modal-title-section {
+    flex: 1;
+}
+
+.experience-modal-title-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+    color: var(--text-color);
+}
+
+.experience-modal-title-section h3 {
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+
+.experience-modal-meta {
+    display: flex;
+    gap: 25px;
+    flex-wrap: wrap;
+}
+
+.experience-modal-meta span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.experience-modal-meta i {
+    color: var(--accent-color);
+}
+
+.experience-modal-body {
+    padding: 30px;
+}
+
+.experience-modal-body h4 {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--bg-alt);
+}
+
+.experience-modal-body h4:not(:first-child) {
+    margin-top: 30px;
+}
+
+.experience-modal-body p {
+    color: var(--text-light);
+    line-height: 1.7;
+    font-size: 0.95rem;
+}
+
+.experience-modal-body ul {
+    list-style: none;
+    padding: 0;
+}
+
+.experience-modal-body ul li {
+    position: relative;
+    padding-left: 25px;
+    margin-bottom: 12px;
+    color: var(--text-light);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.experience-modal-body ul li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 8px;
+    height: 8px;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    border-radius: 50%;
+}
+
+/* Responsive Experience Carousel */
+@media (max-width: 768px) {
+    .experience-item {
+        width: 180px;
+        padding: 20px 15px;
+    }
+
+    .experience-logo {
+        width: 100px;
+        height: 60px;
+    }
+
+    .experience-title {
+        font-size: 0.85rem;
+    }
+
+    .experience-modal-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .experience-modal-meta {
+        justify-content: center;
+    }
 }
 
 /* ===== Skills Section ===== */
@@ -1258,10 +1515,10 @@ ul {
 }
 
 .footer-logo {
-    font-size: 2rem;
-    font-family: var(--font-display);
-    font-weight: 700;
-    color: var(--primary-color);
+    height: 50px;
+    width: auto;
+    object-fit: contain;
+    border-radius: 8px;
 }
 
 .footer-brand p {

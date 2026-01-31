@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSkillsTabs();
     initPortfolioFilter();
     initModal();
+    initExperienceModal();
     initContactForm();
     initAnimations();
 });
@@ -412,13 +413,216 @@ function initModal() {
 }
 
 /**
+ * Experience Modal Module
+ * Handles the experience carousel modal
+ */
+function initExperienceModal() {
+    const modal = document.getElementById('experienceModal');
+    const modalClose = document.getElementById('experienceModalClose');
+    const experienceItems = document.querySelectorAll('.experience-item');
+
+    // Experience data
+    const experienceData = {
+        'unfpa': {
+            title: 'Program Specialist, Geospatial Analysis',
+            organization: 'United Nations Population Fund (UNFPA)',
+            location: 'Nairobi, Kenya',
+            date: 'March 2025 - Present',
+            logo: 'images/unfpa.png',
+            logoType: 'image',
+            responsibilities: 'Programme Specialist, Geospatial Analysis at UNFPA HQ, leading the design and application of integrated geospatial and statistical methods to support LNOB (Leave No One Behind) analysis, population vulnerability assessments, and access to SRH services. Oversee geospatial data platforms, dashboards, and capacity building across HQ, regions, and countries, while representing UNFPA in inter-agency and global data-innovation initiatives.',
+            achievements: [
+                'Management of the Global Enterprise GIS infrastructure including software licensing, contracts and cost optimization strategies',
+                'Designed and deployed an organization-wide GIS infrastructure monitoring dashboard, enabling real-time tracking of system usage, performance, and adoption across users',
+                'Led the rollout of the Degree of Urbanization (DEGURBA) methodology in five countries (Rwanda, Tanzania, Paraguay, Ghana, and the Dominican Republic), enabling standardized urban-rural disaggregation',
+                'Developed an end-to-end climate risk analysis workflow in R to map flood exposure of vulnerable populations, supporting targeted field interventions and climate resilience planning',
+                'Built an interactive global Census Tracking Dashboard in Power BI to monitor Population and Housing Census implementation status, timelines, and gaps',
+                'Provided technical training to over 50 regional trainers on geospatial technologies for modeling physical accessibility to maternal health services',
+                'Trained technical teams from more than 20 countries on ArcGIS Pro and ArcGIS Online for spatial analysis, web mapping, and dashboard development',
+                'Coordinated third-party contractors in the development of the organization\'s data platform, ensuring timely delivery and technical quality'
+            ]
+        },
+        'who-data': {
+            title: 'Data Analyst',
+            organization: 'World Health Organization - Data & Information Management Unit',
+            location: 'Brazzaville, Congo',
+            date: 'January 2024 - February 2025',
+            logo: 'images/WHO.jpg',
+            logoType: 'image',
+            responsibilities: 'In charge of the management of the WHO Regional Polio laboratory databases including Acute Flaccid Paralysis (AFP) data and Environmental Surveillance data. This includes supporting the development of a new Centralized web-based Information for Action Platform (WebIFA) for connecting country and laboratory databases.',
+            achievements: [
+                'Development of Data quality guidelines for managing Polio Data',
+                'Development of Data pipelines in R for data ingestion, transformation, and loading to manage data shared by the 16 polio labs',
+                'Development of data quality checks in R and automatic production of reports and emailing to different stakeholders',
+                'Development of automated data analysis workflows and automatic reporting in R',
+                'Supported the development of an R Package for Polio data management',
+                'Support the development of WebIFA technical specifications and review of the development process',
+                'Support Regional roll-out of WebIFA in 47 Countries and 16 Labs through capacity building and technical support'
+            ]
+        },
+        'who-gis': {
+            title: 'GIS Analyst',
+            organization: 'World Health Organization - African Regional Office, GIS Center',
+            location: 'Brazzaville, Congo',
+            date: 'January 2021 - December 2023',
+            logo: 'images/WHO.jpg',
+            logoType: 'image',
+            responsibilities: 'Working with RESWG (Regional Environmental Surveillance Working Group) Members, country focal points, WCO and MoH to introduce and provide training for the ES electronic data tools. Supporting countries by developing National ES plans to monitor ES implementation in nOPV2 priority countries. Creating weekly web-based site performance monitoring tool, analyses dashboards and feedback to countries.',
+            achievements: [
+                'Supported the implementation of electronic data tools in environmental surveillance for poliovirus in 40/47 countries of AFRO',
+                'Developed a regional M&E dynamic dashboard using Power BI for monitoring ES performance in alignment with the global polio surveillance action plan 2022-2024',
+                'Managed the AFRO instance of the ES Catalog, documenting all ES sites, geocoordinates, bluelines, catchment areas, and populations',
+                'Supported the implementation of the Geospatial Tracking Systems (GTS) in supplementary immunization activities in Cameroon and Congo',
+                'Supported development of GIS and Business Intelligence training materials and roll-out of capacity building for the 47 member states',
+                'Development of ArcGIS Pro toolbox to automate virus mapping process and data ingestion from ONA/ODK server using Esri ArcPy',
+                'Developed a free and opensource QGIS plugin (ODKConnector) to ingest ONA/ODK data directly into QGIS',
+                'Successfully set up a PostgreSQL instance and user management for 47 Countries in WHO AFRO region',
+                'Created data pipeline on 47 African countries using KNIME to extract polio surveillance data from ODK server, transforming and loading into PostgreSQL'
+            ]
+        },
+        'bmgf': {
+            title: 'GIS Analyst',
+            organization: 'Bill & Melinda Gates Foundation (BMGF)',
+            location: 'Brazzaville, Congo',
+            date: 'June 2020 - December 2020',
+            logo: 'images/gates_foundation.png',
+            logoType: 'image',
+            responsibilities: 'Facilitating access to population/survey data for population modeling in selected countries in the region. Providing training/orientation to local government and partners for understanding how to access and use the modeled population data. Coordinating with GIS focal points to validate environmental surveillance sites, geocoding AFP cases, and providing GIS training to in-country teams.',
+            achievements: [
+                'Supported the training and validation of machine learning models for building and settlement extraction from satellite imagery across Africa in support to population estimates for immunization activities',
+                'Supported the WHO AFRO GIS Center in collecting and sharing baseline data on population, POIs, and data validation for geostatistical population modeling',
+                'Supported field initiation, review, and expansion of Environmental Surveillance for poliovirus in AFRO (Mauritia, Burkina-Faso, Benin, and Chad)',
+                'Capacity building of field data collectors on the use of ODK and country data managers on the management of ODK server',
+                'Development of dynamic M&E Dashboards using ArcGIS Online dashboards to track the performance of Environmental Surveillance activities'
+            ]
+        },
+        'sogefi': {
+            title: 'Geomatic Project Manager',
+            organization: 'SOGEFI',
+            location: 'Yaounde, Cameroon',
+            date: 'August 2019 - May 2020',
+            logo: 'images/SOGEFI2.jpg',
+            logoType: 'image',
+            responsibilities: 'GeOSM Project manager (opensource geospatial data infrastructure on 20 African countries). Managing GIS, GPS (GNSS) and Drone mapping projects. Leading the development of Geospatial data infrastructures using opensource technologies. Providing technical support to clients and GIS capacity building.',
+            achievements: [
+                'Supported the mapping of Landcover of Cameroon using satellite Imagery and Machine learning models for image classification',
+                'Trained and mentored 20 field data collectors in the use of field data collection mobile applications, data validation and mapping using QGIS',
+                'Managed and scaled up the deployment of GeOSM from one country to 20 African countries through advocacy, training, and technical support',
+                'Developed and implemented an ODK based community intelligence approach in mapping flood risk in Douala, approved by the World Bank as a low-cost approach',
+                'Led a team of 04 Staff and more than 20 field data collectors to successfully deliver the World Bank flood risk mapping project in two districts of Yaoundé',
+                'Led a team of 04 Staff and more than 20 field data collectors in the Mapping of Internally displaced due to the anglophone crisis for the World Bank',
+                'Led the mapping of services in 18 African cities for UNESCO\'s adolescent and youth services integration project',
+                'Led the development of the Rapid Response Mechanism (RRM) portal for Premier Urgence and Action Contre la Faim',
+                'Successfully conducted drone mapping projects producing orthomosaic pictures, DEMs, and point cloud data'
+            ]
+        },
+        'sgds': {
+            title: 'Survey Engineer',
+            organization: 'SGDS International',
+            location: 'Yaounde, Cameroon',
+            date: 'September 2018 - July 2019',
+            logo: 'images/SGDS_International.png',
+            logoType: 'image',
+            responsibilities: 'Overseeing the project of densification of Cameroon\'s national geodetic network in the Centre and Littoral regions, including preliminary mapping of the network, GNSS observations, baseline postprocessing, and triangulation of inaccessible references.',
+            achievements: [
+                'Successfully led the survey and expansion of the Geodesic system of Cameroon in the Central and Littoral regions',
+                'Planning missions, budgeting needs, data collection, baseline postprocessing, and production of reports for the Ministry of Lands and Surveys',
+                'Using geodesic triangulation to determine coordinates of inaccessible telecommunication antennae used as permanent reference points',
+                'Designed maps of geodesic sites for all districts in the Center and Littoral region of Cameroon'
+            ]
+        },
+        'ggf': {
+            title: 'Survey Engineer',
+            organization: 'Group Galant & Friends',
+            location: 'Yaounde, Cameroon',
+            date: 'September 2017 - August 2018',
+            logo: 'GGF',
+            logoType: 'text',
+            responsibilities: 'Overseeing all topographic and geodesic mapping projects including planning of data collection missions, stakeout, and surveying of geodesic reference points on road corridors, drone mapping of road corridors, ground topographic surveys using total stations, and designing of urban, interurban, and rural roads.',
+            achievements: [
+                'Successfully conducted topographic surveys for the building of bridge in Edea city',
+                'Successfully conducted topographic surveys for rehabilitation of roads in the city of Bagangte for the 2021 AFCON',
+                'More than 150hr cumulative of drone mapping on road projects',
+                'More than 200Km cumulative of road surveys'
+            ]
+        }
+    };
+
+    // Open modal function
+    function openExperienceModal(experienceId) {
+        const experience = experienceData[experienceId];
+        if (!experience) return;
+
+        // Set modal content
+        const logoContainer = document.getElementById('expModalLogo');
+        if (experience.logoType === 'image') {
+            logoContainer.innerHTML = `<img src="${experience.logo}" alt="${experience.organization} Logo">`;
+            logoContainer.classList.remove('text-logo');
+        } else {
+            logoContainer.innerHTML = `<span>${experience.logo}</span>`;
+            logoContainer.classList.add('text-logo');
+        }
+
+        document.getElementById('expModalTitle').textContent = experience.title;
+        document.getElementById('expModalOrg').textContent = experience.organization;
+        document.getElementById('expModalLocation').querySelector('span').textContent = experience.location;
+        document.getElementById('expModalDate').querySelector('span').textContent = experience.date;
+        document.getElementById('expModalResponsibilities').textContent = experience.responsibilities;
+
+        // Build achievements list
+        const achievementsList = document.getElementById('expModalAchievements');
+        achievementsList.innerHTML = '';
+        experience.achievements.forEach(achievement => {
+            const li = document.createElement('li');
+            li.textContent = achievement;
+            achievementsList.appendChild(li);
+        });
+
+        // Show modal
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Close modal function
+    function closeExperienceModal() {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    // Add click listeners to experience items
+    experienceItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const experienceId = item.getAttribute('data-experience');
+            openExperienceModal(experienceId);
+        });
+    });
+
+    // Close modal on button click
+    modalClose?.addEventListener('click', closeExperienceModal);
+
+    // Close modal on backdrop click
+    modal?.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeExperienceModal();
+        }
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal?.classList.contains('active')) {
+            closeExperienceModal();
+        }
+    });
+}
+
+/**
  * Contact Form Module
- * Handles form validation and submission
+ * Handles form validation and submission via Formspree
  */
 function initContactForm() {
     const form = document.getElementById('contactForm');
 
-    form?.addEventListener('submit', (e) => {
+    form?.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         // Get form data
@@ -436,21 +640,27 @@ function initContactForm() {
             return;
         }
 
-        // Construct mailto link
-        const subject = encodeURIComponent(data.subject || 'Portfolio Contact');
-        const body = encodeURIComponent(
-            `Name: ${data.name}\n` +
-            `Email: ${data.email}\n\n` +
-            `Message:\n${data.message}`
-        );
-        const mailtoLink = `mailto:demeveng@gmail.com?subject=${subject}&body=${body}`;
+        // Show sending notification
+        showNotification('Sending message...', 'info');
 
-        // Open email client
-        window.location.href = mailtoLink;
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
 
-        // Show confirmation
-        showNotification('Opening your email client...', 'success');
-        form.reset();
+            if (response.ok) {
+                showNotification('Message sent successfully! I\'ll get back to you soon.', 'success');
+                form.reset();
+            } else {
+                throw new Error('Form submission failed');
+            }
+        } catch (error) {
+            showNotification('Failed to send message. Please try again or reach out via social media.', 'error');
+        }
     });
 }
 
@@ -532,7 +742,7 @@ function initAnimations() {
     `;
     document.head.appendChild(style);
 
-    // Add reveal class to elements
+    // Add reveal class to elements (excluding experience-items which use CSS animation)
     const revealElements = document.querySelectorAll(
         '.timeline-item, .skill-card, .publication-card, .portfolio-item, .domain-card, .tool-item'
     );
