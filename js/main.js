@@ -426,21 +426,19 @@ function initExperienceModal() {
     const experienceData = {
         'unfpa': {
             title: 'Program Specialist, Geospatial Analysis',
-            organization: 'United Nations Population Fund (UNFPA)',
+            organization: 'United Nations Population Fund (UNFPA) - Data, Demography and Development Branch',
             location: 'Nairobi, Kenya',
             date: 'March 2025 - Present',
             logo: 'images/unfpa.png',
             logoType: 'image',
             responsibilities: 'Programme Specialist, Geospatial Analysis at UNFPA HQ, leading the design and application of integrated geospatial and statistical methods to support LNOB (Leave No One Behind) analysis, population vulnerability assessments, and access to SRH services. Oversee geospatial data platforms, dashboards, and capacity building across HQ, regions, and countries, while representing UNFPA in inter-agency and global data-innovation initiatives.',
             achievements: [
-                'Management of the Global Enterprise GIS infrastructure including software licensing, contracts and cost optimization strategies',
-                'Designed and deployed an organization-wide GIS infrastructure monitoring dashboard, enabling real-time tracking of system usage, performance, and adoption across users',
-                'Led the rollout of the Degree of Urbanization (DEGURBA) methodology in five countries (Rwanda, Tanzania, Paraguay, Ghana, and the Dominican Republic), enabling standardized urban-rural disaggregation',
-                'Developed an end-to-end climate risk analysis workflow in R to map flood exposure of vulnerable populations, supporting targeted field interventions and climate resilience planning',
-                'Built an interactive global Census Tracking Dashboard in Power BI to monitor Population and Housing Census implementation status, timelines, and gaps',
-                'Provided technical training to over 50 regional trainers on geospatial technologies for modeling physical accessibility to maternal health services',
-                'Trained technical teams from more than 20 countries on ArcGIS Pro and ArcGIS Online for spatial analysis, web mapping, and dashboard development',
-                'Coordinated third-party contractors in the development of the organization\'s data platform, ensuring timely delivery and technical quality'
+                'Provided strategic leadership for the organization global Enterprise GIS ecosystem, overseeing software licensing, vendor and service provider contracts, reviewing guidelines for procurement of satellite imagery and GIS infrastructures to support Censuses in countries, and cost-optimization strategies, while coordinating third-party contractors to deliver scalable, standards-compliant data platforms.',
+                'Supported the coordination with technical vendors in the development of the global population data and demographic intelligence from open-source platforms to provide insight into sexual and reproductive health and rights.',
+                'Supported the international rollout of the Degree of Urbanization (DEGURBA) methodology using population censuses and built-up data across five countries, enabling standardized urban-rural classification and cross-country comparability of SDG indicators for policy and planning.',
+                'Supported regional training of five country GIS focal points in conducting geospatial accessibility analysis to support Emergency Obstetric and Newborn Care (EmONC) prioritization exercises in countries.',
+                'Developed end-to-end geospatial analytics pipelines in R for climate risk and flood-exposure modeling, integrating population and hazard data to support targeted, data-driven interventions and resilience planning for vulnerable populations.',
+                'Built interactive decision-support dashboards in Power BI, including a global Census Tracking Dashboard, to monitor implementation status, timelines, and gaps, strengthening data-driven oversight and strategic decision-making.'
             ]
         },
         'who-data': {
@@ -452,13 +450,11 @@ function initExperienceModal() {
             logoType: 'image',
             responsibilities: 'In charge of the management of the WHO Regional Polio laboratory databases including Acute Flaccid Paralysis (AFP) data and Environmental Surveillance data. This includes supporting the development of a new Centralized web-based Information for Action Platform (WebIFA) for connecting country and laboratory databases.',
             achievements: [
-                'Development of Data quality guidelines for managing Polio Data',
-                'Development of Data pipelines in R for data ingestion, transformation, and loading to manage data shared by the 16 polio labs',
-                'Development of data quality checks in R and automatic production of reports and emailing to different stakeholders',
-                'Development of automated data analysis workflows and automatic reporting in R',
-                'Supported the development of an R Package for Polio data management',
-                'Support the development of WebIFA technical specifications and review of the development process',
-                'Support Regional roll-out of WebIFA in 47 Countries and 16 Labs through capacity building and technical support'
+                'Developed data governance and quality frameworks for polio surveillance data, including standardized validation rules and quality guidelines applied across regional datasets.',
+                'Built automated ETL pipelines in R to ingest, transform, and harmonize laboratory and surveillance data from 16 polio laboratories into centralized data management and analytics systems used by the Global Polio Eradication Network.',
+                'Implemented automated data quality checks, analysis, and reporting workflows in R, generating reproducible reports and distributing outputs automatically to multiple stakeholder groups.',
+                'Contributed to the development of an R package for polio data management, supporting reusable, modular, and maintainable data processing and analysis workflows.',
+                'Supported the technical design and regional rollout of a Web Information for Action (WEBIFA) platform, including review of technical specifications, implementation planning, and capacity building across 47 countries and 16 laboratories.'
             ]
         },
         'who-gis': {
@@ -468,17 +464,13 @@ function initExperienceModal() {
             date: 'January 2021 - December 2023',
             logo: 'images/WHO.jpg',
             logoType: 'image',
-            responsibilities: 'Working with RESWG (Regional Environmental Surveillance Working Group) Members, country focal points, WCO and MoH to introduce and provide training for the ES electronic data tools. Supporting countries by developing National ES plans to monitor ES implementation in nOPV2 priority countries. Creating weekly web-based site performance monitoring tool, analyses dashboards and feedback to countries.',
+            responsibilities: 'Coordination with regional working groups, country focal points, ministries of health, and partners on the introduction and orientation of electronic surveillance data collection tools in countries. Providing technical guidance to countries on the preparation of national ES monitoring plans for priority settings. Coordination with technical partners on the development of geospatial data management platform for polio surveillance. Development and maintenance of business intelligence dashboards, provision of regular analytical outputs to country teams, and participation in periodic desk reviews of surveillance activities through data analysis and coordination calls with key stakeholders.',
             achievements: [
-                'Supported the implementation of electronic data tools in environmental surveillance for poliovirus in 40/47 countries of AFRO',
-                'Developed a regional M&E dynamic dashboard using Power BI for monitoring ES performance in alignment with the global polio surveillance action plan 2022-2024',
-                'Managed the AFRO instance of the ES Catalog, documenting all ES sites, geocoordinates, bluelines, catchment areas, and populations',
-                'Supported the implementation of the Geospatial Tracking Systems (GTS) in supplementary immunization activities in Cameroon and Congo',
-                'Supported development of GIS and Business Intelligence training materials and roll-out of capacity building for the 47 member states',
-                'Development of ArcGIS Pro toolbox to automate virus mapping process and data ingestion from ONA/ODK server using Esri ArcPy',
-                'Developed a free and opensource QGIS plugin (ODKConnector) to ingest ONA/ODK data directly into QGIS',
-                'Successfully set up a PostgreSQL instance and user management for 47 Countries in WHO AFRO region',
-                'Created data pipeline on 47 African countries using KNIME to extract polio surveillance data from ODK server, transforming and loading into PostgreSQL'
+                'Designed and maintained regional ETL pipelines using KNIME, Python, and PostgreSQL, extracting surveillance data from ODK/ONA servers, performing data validation and transformation, and loading structured datasets to support analytics across 47 countries.',
+                'Developed automated geospatial data ingestion and processing tools using Python (ArcPy), including a custom ArcGIS Pro toolbox and Python notebooks to synchronize data between ODK servers, ArcGIS Pro, and ArcGIS Online.',
+                'Built and released an open-source QGIS plugin enabling direct ingestion of ODK/ONA data into QGIS, reducing manual data handling and improving efficiency in geospatial data management workflows.',
+                'Designed and managed centralized geospatial databases using PostgreSQL/PostGIS, including schema design, user access management, and spatial data standardization for regional-scale analytics.',
+                'Developed interactive analytics and performance monitoring dashboards using Power BI, translating complex surveillance and geospatial datasets into actionable insights for regional decision-making.'
             ]
         },
         'bmgf': {
@@ -488,13 +480,13 @@ function initExperienceModal() {
             date: 'June 2020 - December 2020',
             logo: 'images/gates_foundation.png',
             logoType: 'image',
-            responsibilities: 'Facilitating access to population/survey data for population modeling in selected countries in the region. Providing training/orientation to local government and partners for understanding how to access and use the modeled population data. Coordinating with GIS focal points to validate environmental surveillance sites, geocoding AFP cases, and providing GIS training to in-country teams.',
+            responsibilities: 'Providing GIS and data analysis support during outbreak response activities, supporting the mapping of surveillance sites, and supporting the preparation and sharing of surveillance datasets at local, national, and regional levels. Supporting the rollout and routine follow-up of electronic data collection tools, monitoring incoming data submissions, and supporting data workflows between field data collection systems and national, regional, and global information platforms.',
             achievements: [
-                'Supported the training and validation of machine learning models for building and settlement extraction from satellite imagery across Africa in support to population estimates for immunization activities',
-                'Supported the WHO AFRO GIS Center in collecting and sharing baseline data on population, POIs, and data validation for geostatistical population modeling',
-                'Supported field initiation, review, and expansion of Environmental Surveillance for poliovirus in AFRO (Mauritia, Burkina-Faso, Benin, and Chad)',
-                'Capacity building of field data collectors on the use of ODK and country data managers on the management of ODK server',
-                'Development of dynamic M&E Dashboards using ArcGIS Online dashboards to track the performance of Environmental Surveillance activities'
+                'Managed the Geospatial Polio Environmental Surveillance data platform for the World Health Organization (WHO) regional office for Africa, cataloging more than 500 surveillance sites, watersheds and population data across 47 countries.',
+                'Supported the training, validation, and quality assurance of machine learning models for building and settlement extraction from satellite imagery across Africa, contributing to population estimates used for immunization planning and micro-planning activities.',
+                'Supported the WHO AFRO GIS Center in the collection, validation, and dissemination of baseline geospatial datasets, including population data and points of interest (POIs) to support geostatistical population modeling and analytics for immunization activities across 47 countries.',
+                'Supported the initiation, review, and expansion of Geospatial technologies for Environmental Surveillance (ES) of poliovirus across four (04) African countries (Mauritania, Burkina Faso, Benin, and Chad), including capacity building of more than hundred (100) field data collectors and country data managers on the use of mobile phones, and GIS workflows to conduct data quality assurance, and KPI-based performance monitoring.',
+                'Developed dynamic M&E dashboards using ArcGIS Online Dashboard to monitor the performance of Environmental Surveillance activities, enabling real-time tracking of key program indicators and operational decision-making.'
             ]
         },
         'sogefi': {
@@ -504,17 +496,14 @@ function initExperienceModal() {
             date: 'August 2019 - May 2020',
             logo: 'images/SOGEFI2.jpg',
             logoType: 'image',
-            responsibilities: 'GeOSM Project manager (opensource geospatial data infrastructure on 20 African countries). Managing GIS, GPS (GNSS) and Drone mapping projects. Leading the development of Geospatial data infrastructures using opensource technologies. Providing technical support to clients and GIS capacity building.',
+            responsibilities: 'Coordinating geospatial projects across Africa, including managing the GeoOSM project, an open-source geospatial data infrastructure initiative covering multiple African countries. Overseeing GIS, GNSS, and drone mapping activities; supervising geospatial data collection projects; and supporting the development and maintenance of geospatial data infrastructures using open-source technologies. Managing geospatial data and systems, providing technical support to clients, delivering GIS training and capacity-building activities, contributing to tender preparation and responses, and producing technical documentation.',
             achievements: [
-                'Supported the mapping of Landcover of Cameroon using satellite Imagery and Machine learning models for image classification',
-                'Trained and mentored 20 field data collectors in the use of field data collection mobile applications, data validation and mapping using QGIS',
-                'Managed and scaled up the deployment of GeOSM from one country to 20 African countries through advocacy, training, and technical support',
-                'Developed and implemented an ODK based community intelligence approach in mapping flood risk in Douala, approved by the World Bank as a low-cost approach',
-                'Led a team of 04 Staff and more than 20 field data collectors to successfully deliver the World Bank flood risk mapping project in two districts of Yaoundé',
-                'Led a team of 04 Staff and more than 20 field data collectors in the Mapping of Internally displaced due to the anglophone crisis for the World Bank',
-                'Led the mapping of services in 18 African cities for UNESCO\'s adolescent and youth services integration project',
-                'Led the development of the Rapid Response Mechanism (RRM) portal for Premier Urgence and Action Contre la Faim',
-                'Successfully conducted drone mapping projects producing orthomosaic pictures, DEMs, and point cloud data'
+                'Supported land-cover mapping in Cameroon using satellite imagery and machine learning-based image classification techniques, including Support Vector Machines (SVM), Random Forest, and Maximum Likelihood algorithms.',
+                'Led a team of two (02) software developers in the design, development, testing, deployment, and scaling of an open-source geospatial data infrastructure (GeoOSM) built on OpenStreetMap data across twenty (20) African countries. Responsibilities included technical oversight, code review and troubleshooting, geospatial database design using PostgreSQL/PostGIS, QGIS Server management, and capacity building through advocacy, training, and technical support.',
+                'Managed a multidisciplinary team of four (04) staff and over twenty (20) field data collectors to deliver a World Bank-funded flood risk mapping project in Yaoundé and Douala, applying participatory mapping and focus group discussions, and leveraging mobile data collection platforms and GIS workflows to map and validate over 1,000,000 socioeconomic activities in flood-prone areas.',
+                'Led a team of ten (10) field mappers to conduct large-scale mapping of more than hundred thousand (100,000) socioeconomic activities in Cameroon\'s Southwest Region, supporting the assessment of the economic impacts of the ongoing crisis.',
+                'Directed the mapping of health and protection services in 18 African cities under the UNESCO-funded project Integration of Sexual, Reproductive, Support, and Protection Services for Adolescents and Young People.',
+                'Led a team of two developers in the development of a Humanitarian Rapid Response Mechanism (RRM) platform for Premier Urgence International and Action Against Hunger, supporting timely data collection, analysis, and decision-making in emergency response contexts.'
             ]
         },
         'sgds': {
@@ -524,12 +513,11 @@ function initExperienceModal() {
             date: 'September 2018 - July 2019',
             logo: 'images/SGDS_International.png',
             logoType: 'image',
-            responsibilities: 'Overseeing the project of densification of Cameroon\'s national geodetic network in the Centre and Littoral regions, including preliminary mapping of the network, GNSS observations, baseline postprocessing, and triangulation of inaccessible references.',
+            responsibilities: 'Overseeing the project of densification of Cameroon\'s national geodetic network in the Centre and Littoral regions, preliminary mapping of the network, GNSS observations, baseline postprocessing, triangulation of inaccessible references.',
             achievements: [
-                'Successfully led the survey and expansion of the Geodesic system of Cameroon in the Central and Littoral regions',
-                'Planning missions, budgeting needs, data collection, baseline postprocessing, and production of reports for the Ministry of Lands and Surveys',
-                'Using geodesic triangulation to determine coordinates of inaccessible telecommunication antennae used as permanent reference points',
-                'Designed maps of geodesic sites for all districts in the Center and Littoral region of Cameroon'
+                'Led a team of three surveyors in the establishment of 200 geodetic control pillars across five towns in Cameroon, supporting the expansion of the national geodetic network.',
+                'Planned, executed, and post-processed geodetic baseline observations for the 200 control pillars using least-squares adjustment methods to ensure positional accuracy and network consistency.',
+                'Contributed to the preparation of the project\'s final technical report submitted to the Ministry of Lands and Surveys, including documentation of methodology, results, and quality assurance procedures.'
             ]
         },
         'ggf': {
@@ -539,12 +527,10 @@ function initExperienceModal() {
             date: 'September 2017 - August 2018',
             logo: 'GGF',
             logoType: 'text',
-            responsibilities: 'Overseeing all topographic and geodesic mapping projects including planning of data collection missions, stakeout, and surveying of geodesic reference points on road corridors, drone mapping of road corridors, ground topographic surveys using total stations, and designing of urban, interurban, and rural roads.',
+            responsibilities: 'Overseeing all topographic and geodesic mapping projects. These tasks included planning of topographic and geodesic data collection missions, stakeout, and surveying of geodesic reference points on road corridors, drone mapping of road corridors and production of orthophotos, digital elevation models (DEM), and points clouds, ground topographic surveys using total stations, designing of urban, interurban, and rural roads, quantitative surveys, production of technical documents.',
             achievements: [
-                'Successfully conducted topographic surveys for the building of bridge in Edea city',
-                'Successfully conducted topographic surveys for rehabilitation of roads in the city of Bagangte for the 2021 AFCON',
-                'More than 150hr cumulative of drone mapping on road projects',
-                'More than 200Km cumulative of road surveys'
+                'Led a team of two surveyors in conducting large-scale topographic surveys covering over 300 km of road infrastructure in Cameroon, using GNSS, total stations, and drone mapping. Responsibilities included data processing, cut-and-fill computations, and preparation of detailed topographic survey reports.',
+                'Led a team of two surveyors in carrying out topographic surveys for more than 50 culverts and two bridges in Cameroon, including survey setup, data processing, cut-and-fill analysis, and production of technical topographic reports.'
             ]
         }
     };
@@ -572,12 +558,22 @@ function initExperienceModal() {
 
         // Build achievements list
         const achievementsList = document.getElementById('expModalAchievements');
+        const achievementsHeading = achievementsList.previousElementSibling;
         achievementsList.innerHTML = '';
-        experience.achievements.forEach(achievement => {
-            const li = document.createElement('li');
-            li.textContent = achievement;
-            achievementsList.appendChild(li);
-        });
+
+        // Hide achievements section if no achievements
+        if (experience.achievements && experience.achievements.length > 0) {
+            achievementsHeading.style.display = 'block';
+            achievementsList.style.display = 'block';
+            experience.achievements.forEach(achievement => {
+                const li = document.createElement('li');
+                li.textContent = achievement;
+                achievementsList.appendChild(li);
+            });
+        } else {
+            achievementsHeading.style.display = 'none';
+            achievementsList.style.display = 'none';
+        }
 
         // Show modal
         modal.classList.add('active');
