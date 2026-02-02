@@ -1,0 +1,30 @@
+# robots.txt for Derrick Demeveng Portfolio
+# https://demevengderrick.github.io/maps/
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://demevengderrick.github.io/maps/sitemap.xml
+
+# Crawl-delay (optional, for polite crawling)
+Crawl-delay: 1
+
+# Allow all search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: YandexBot
+Allow: /
