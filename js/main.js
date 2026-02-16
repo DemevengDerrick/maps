@@ -14,6 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initContactForm();
     initAnimations();
     initCountriesMap();
+    initExperienceCategories();
+    initServiceQuotes();
 });
 
 /**
@@ -665,7 +667,8 @@ function initCountriesMap() {
         'QAT': { name: 'Qatar', coords: [25.4, 51.2] },
         'DOM': { name: 'Dominican Republic', coords: [18.7, -70.2] },
         'USA': { name: 'United States', coords: [37.1, -95.7] },
-        'CAN': { name: 'Canada', coords: [56.1, -106.3] }
+        'CAN': { name: 'Canada', coords: [56.1, -106.3] },
+        'ALB': { name: 'Albania', coords: [41.15, 20.17] }
     };
 
     const visitedCodes = Object.keys(visitedCountries);
@@ -834,6 +837,225 @@ function showNotification(message, type = 'info') {
 }
 
 /**
+ * Experience Categories Module
+ * Displays achievements categorized by Geospatial/Data Analysis, BI Analysis, and Data Engineering
+ */
+function initExperienceCategories() {
+    const tabBtns = document.querySelectorAll('.exp-tab-btn');
+    const tabContents = document.querySelectorAll('.exp-tab-content');
+
+    // Categorized experience data — achievements split across roles
+    const categorizedExperience = {
+        geospatial: [
+            {
+                org: 'United Nations Population Fund (UNFPA)',
+                logo: 'images/unfpa.png',
+                logoType: 'image',
+                role: 'Program Specialist, Geospatial Analysis',
+                date: 'March 2025 - Present',
+                achievements: [
+                    'Provided strategic leadership for the organization global Enterprise GIS ecosystem, overseeing software licensing, vendor and service provider contracts, reviewing guidelines for procurement of satellite imagery and GIS infrastructures to support Censuses in countries, and cost-optimization strategies, while coordinating third-party contractors to deliver scalable, standards-compliant data platforms.',
+                    'Supported the coordination with technical vendors in the development of the global population data and demographic intelligence from open-source platforms to provide insight into sexual and reproductive health and rights.',
+                    'Supported the international rollout of the Degree of Urbanization (DEGURBA) methodology using population censuses and built-up data across five countries, enabling standardized urban-rural classification and cross-country comparability of SDG indicators for policy and planning.',
+                    'Supported regional training of five country GIS focal points in conducting geospatial accessibility analysis to support Emergency Obstetric and Newborn Care (EmONC) prioritization exercises in countries.',
+                    'Developed end-to-end geospatial analytics pipelines in R for climate risk and flood-exposure modeling, integrating population and hazard data to support targeted, data-driven interventions and resilience planning for vulnerable populations.'
+                ]
+            },
+            {
+                org: 'World Health Organization - GIS Center',
+                logo: 'images/WHO.jpg',
+                logoType: 'image',
+                role: 'GIS Analyst',
+                date: 'January 2021 - December 2023',
+                achievements: [
+                    'Developed automated geospatial data ingestion and processing tools using Python (ArcPy), including a custom ArcGIS Pro toolbox and Python notebooks to synchronize data between ODK servers, ArcGIS Pro, and ArcGIS Online.'
+                ]
+            },
+            {
+                org: 'Bill & Melinda Gates Foundation (BMGF)',
+                logo: 'images/gates_foundation.png',
+                logoType: 'image',
+                role: 'GIS Analyst',
+                date: 'June 2020 - December 2020',
+                achievements: [
+                    'Managed the Geospatial Polio Environmental Surveillance data platform for the World Health Organization (WHO) regional office for Africa, cataloging more than 500 surveillance sites, watersheds and population data across 47 countries.',
+                    'Supported the training, validation, and quality assurance of machine learning models for building and settlement extraction from satellite imagery across Africa, contributing to population estimates used for immunization planning and micro-planning activities.',
+                    'Supported the WHO AFRO GIS Center in the collection, validation, and dissemination of baseline geospatial datasets, including population data and points of interest (POIs) to support geostatistical population modeling and analytics for immunization activities across 47 countries.',
+                    'Supported the initiation, review, and expansion of Geospatial technologies for Environmental Surveillance (ES) of poliovirus across four (04) African countries (Mauritania, Burkina Faso, Benin, and Chad), including capacity building of more than hundred (100) field data collectors and country data managers on the use of mobile phones, and GIS workflows to conduct data quality assurance, and KPI-based performance monitoring.'
+                ]
+            },
+            {
+                org: 'SOGEFI',
+                logo: 'images/SOGEFI2.jpg',
+                logoType: 'image',
+                role: 'Geomatic Project Manager',
+                date: 'August 2019 - May 2020',
+                achievements: [
+                    'Supported land-cover mapping in Cameroon using satellite imagery and machine learning-based image classification techniques, including Support Vector Machines (SVM), Random Forest, and Maximum Likelihood algorithms.',
+                    'Managed a multidisciplinary team of four (04) staff and over twenty (20) field data collectors to deliver a World Bank-funded flood risk mapping project in Yaoundé and Douala, applying participatory mapping and focus group discussions, and leveraging mobile data collection platforms and GIS workflows to map and validate over 1,000,000 socioeconomic activities in flood-prone areas.',
+                    'Led a team of ten (10) field mappers to conduct large-scale mapping of more than hundred thousand (100,000) socioeconomic activities in Cameroon\'s Southwest Region, supporting the assessment of the economic impacts of the ongoing crisis.',
+                    'Directed the mapping of health and protection services in 18 African cities under the UNESCO-funded project Integration of Sexual, Reproductive, Support, and Protection Services for Adolescents and Young People.'
+                ]
+            },
+            {
+                org: 'SGDS International',
+                logo: 'images/SGDS_International.png',
+                logoType: 'image',
+                role: 'Survey Engineer',
+                date: 'September 2018 - July 2019',
+                achievements: [
+                    'Led a team of three surveyors in the establishment of 200 geodetic control pillars across five towns in Cameroon, supporting the expansion of the national geodetic network.',
+                    'Planned, executed, and post-processed geodetic baseline observations for the 200 control pillars using least-squares adjustment methods to ensure positional accuracy and network consistency.',
+                    'Contributed to the preparation of the project\'s final technical report submitted to the Ministry of Lands and Surveys, including documentation of methodology, results, and quality assurance procedures.'
+                ]
+            },
+            {
+                org: 'Group Galant & Friends',
+                logo: 'GGF',
+                logoType: 'text',
+                role: 'Survey Engineer',
+                date: 'September 2017 - August 2018',
+                achievements: [
+                    'Led a team of two surveyors in conducting large-scale topographic surveys covering over 300 km of road infrastructure in Cameroon, using GNSS, total stations, and drone mapping. Responsibilities included data processing, cut-and-fill computations, and preparation of detailed topographic survey reports.',
+                    'Led a team of two surveyors in carrying out topographic surveys for more than 50 culverts and two bridges in Cameroon, including survey setup, data processing, cut-and-fill analysis, and production of technical topographic reports.'
+                ]
+            }
+        ],
+        bi: [
+            {
+                org: 'United Nations Population Fund (UNFPA)',
+                logo: 'images/unfpa.png',
+                logoType: 'image',
+                role: 'Program Specialist, Geospatial Analysis',
+                date: 'March 2025 - Present',
+                achievements: [
+                    'Built interactive decision-support dashboards in Power BI, including a global Census Tracking Dashboard, to monitor implementation status, timelines, and gaps, strengthening data-driven oversight and strategic decision-making.'
+                ]
+            },
+            {
+                org: 'World Health Organization - Data & Information Management Unit',
+                logo: 'images/WHO.jpg',
+                logoType: 'image',
+                role: 'Data Analyst',
+                date: 'January 2024 - February 2025',
+                achievements: [
+                    'Implemented automated data quality checks, analysis, and reporting workflows in R, generating reproducible reports and distributing outputs automatically to multiple stakeholder groups.'
+                ]
+            },
+            {
+                org: 'World Health Organization - GIS Center',
+                logo: 'images/WHO.jpg',
+                logoType: 'image',
+                role: 'GIS Analyst',
+                date: 'January 2021 - December 2023',
+                achievements: [
+                    'Developed interactive analytics and performance monitoring dashboards using Power BI, translating complex surveillance and geospatial datasets into actionable insights for regional decision-making.'
+                ]
+            },
+            {
+                org: 'Bill & Melinda Gates Foundation (BMGF)',
+                logo: 'images/gates_foundation.png',
+                logoType: 'image',
+                role: 'GIS Analyst',
+                date: 'June 2020 - December 2020',
+                achievements: [
+                    'Developed dynamic M&E dashboards using ArcGIS Online Dashboard to monitor the performance of Environmental Surveillance activities, enabling real-time tracking of key program indicators and operational decision-making.'
+                ]
+            }
+        ],
+        de: [
+            {
+                org: 'World Health Organization - Data & Information Management Unit',
+                logo: 'images/WHO.jpg',
+                logoType: 'image',
+                role: 'Data Analyst',
+                date: 'January 2024 - February 2025',
+                achievements: [
+                    'Developed data governance and quality frameworks for polio surveillance data, including standardized validation rules and quality guidelines applied across regional datasets.',
+                    'Built automated ETL pipelines in R to ingest, transform, and harmonize laboratory and surveillance data from 16 polio laboratories into centralized data management and analytics systems used by the Global Polio Eradication Network.',
+                    'Contributed to the development of an R package for polio data management, supporting reusable, modular, and maintainable data processing and analysis workflows.',
+                    'Supported the technical design and regional rollout of a Web Information for Action (WEBIFA) platform, including review of technical specifications, implementation planning, and capacity building across 47 countries and 16 laboratories.'
+                ]
+            },
+            {
+                org: 'World Health Organization - GIS Center',
+                logo: 'images/WHO.jpg',
+                logoType: 'image',
+                role: 'GIS Analyst',
+                date: 'January 2021 - December 2023',
+                achievements: [
+                    'Designed and maintained regional ETL pipelines using KNIME, Python, and PostgreSQL, extracting surveillance data from ODK/ONA servers, performing data validation and transformation, and loading structured datasets to support analytics across 47 countries.',
+                    'Built and released an open-source QGIS plugin enabling direct ingestion of ODK/ONA data into QGIS, reducing manual data handling and improving efficiency in geospatial data management workflows.',
+                    'Designed and managed centralized geospatial databases using PostgreSQL/PostGIS, including schema design, user access management, and spatial data standardization for regional-scale analytics.'
+                ]
+            },
+            {
+                org: 'SOGEFI',
+                logo: 'images/SOGEFI2.jpg',
+                logoType: 'image',
+                role: 'Geomatic Project Manager',
+                date: 'August 2019 - May 2020',
+                achievements: [
+                    'Led a team of two (02) software developers in the design, development, testing, deployment, and scaling of an open-source geospatial data infrastructure (GeoOSM) built on OpenStreetMap data across twenty (20) African countries. Responsibilities included technical oversight, code review and troubleshooting, geospatial database design using PostgreSQL/PostGIS, QGIS Server management, and capacity building through advocacy, training, and technical support.',
+                    'Led a team of two developers in the development of a Humanitarian Rapid Response Mechanism (RRM) platform for Premier Urgence International and Action Against Hunger, supporting timely data collection, analysis, and decision-making in emergency response contexts.'
+                ]
+            }
+        ]
+    };
+
+    // Render categorized content
+    function renderCategoryContent(categoryData, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        container.innerHTML = categoryData.map(org => {
+            const logoHtml = org.logoType === 'image'
+                ? `<div class="exp-category-org-logo"><img src="${org.logo}" alt="${org.org} Logo"></div>`
+                : `<div class="exp-category-org-logo text-logo"><span>${org.logo}</span></div>`;
+
+            const achievementsHtml = org.achievements.map(a => `<li>${a}</li>`).join('');
+
+            return `
+                <div class="exp-category-org">
+                    <div class="exp-category-org-header">
+                        ${logoHtml}
+                        <div class="exp-category-org-info">
+                            <h4>${org.role}</h4>
+                            <p>${org.org}</p>
+                            <span>${org.date}</span>
+                        </div>
+                    </div>
+                    <ul class="exp-category-achievements">${achievementsHtml}</ul>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Render all tabs
+    renderCategoryContent(categorizedExperience.geospatial, 'exp-geospatial');
+    renderCategoryContent(categorizedExperience.bi, 'exp-bi');
+    renderCategoryContent(categorizedExperience.de, 'exp-de');
+
+    // Tab switching
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabId = btn.getAttribute('data-exp-tab');
+
+            tabBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            const targetMap = { geospatial: 'exp-geospatial', bi: 'exp-bi', de: 'exp-de' };
+            const target = document.getElementById(targetMap[tabId]);
+            if (target) target.classList.add('active');
+        });
+    });
+}
+
+/**
  * Animations Module
  * Handles scroll-triggered reveal animations
  */
@@ -863,7 +1085,7 @@ function initAnimations() {
 
     // Add reveal class to elements (excluding experience-items which use CSS animation)
     const revealElements = document.querySelectorAll(
-        '.timeline-item, .skill-card, .publication-card, .portfolio-item, .domain-card, .tool-item'
+        '.timeline-item, .skill-card, .publication-card, .portfolio-item, .domain-card, .tool-item, .service-card'
     );
 
     revealElements.forEach((el, index) => {
@@ -884,4 +1106,30 @@ function initAnimations() {
     });
 
     revealElements.forEach(el => observer.observe(el));
+}
+
+/**
+ * Service Quotes Module
+ * Handles "Request a Quote" buttons that scroll to contact form and pre-fill subject
+ */
+function initServiceQuotes() {
+    const quoteBtns = document.querySelectorAll('.quote-btn');
+
+    quoteBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const serviceName = btn.getAttribute('data-service');
+            const subjectField = document.getElementById('subject');
+            const contactSection = document.getElementById('contact');
+
+            if (subjectField) {
+                subjectField.value = `Quote Request: ${serviceName}`;
+                // Trigger input event so the floating label moves up
+                subjectField.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+
+            if (contactSection) {
+                contactSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
 }

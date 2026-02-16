@@ -148,6 +148,7 @@
                 <li><a href="#skills" class="nav-link">Skills</a></li>
                 <li><a href="#publications" class="nav-link">Publications</a></li>
                 <li><a href="#portfolio" class="nav-link">Portfolio</a></li>
+                <li><a href="#services" class="nav-link">Services</a></li>
                 <li><a href="#contact" class="nav-link">Contact</a></li>
             </ul>
         </div>
@@ -379,6 +380,18 @@
                 </div>
             </div>
         </div>
+        <div class="container">
+            <div class="experience-categories-tabs">
+                <button class="exp-tab-btn active" data-exp-tab="geospatial">Geospatial/Data Analysis</button>
+                <button class="exp-tab-btn" data-exp-tab="bi">BI Analysis</button>
+                <button class="exp-tab-btn" data-exp-tab="de">Data Engineering</button>
+            </div>
+            <div class="experience-categories-content">
+                <div class="exp-tab-content active" id="exp-geospatial"></div>
+                <div class="exp-tab-content" id="exp-bi"></div>
+                <div class="exp-tab-content" id="exp-de"></div>
+            </div>
+        </div>
     </section>
 
     <!-- Experience Modal -->
@@ -410,8 +423,8 @@
     <!-- Countries Visited Section -->
     <section id="countries-visited" class="section countries-visited">
         <div class="container">
-            <h2 class="section-title">Countries Visited</h2>
-            <p class="countries-subtitle">I have had the privilege of working and traveling across <strong>25 countries</strong> on <strong>5 continents</strong></p>
+            <h2 class="section-title">Countries Worked In</h2>
+            <p class="countries-subtitle">I have had the privilege of working across <strong>26 countries</strong> on <strong>5 continents</strong></p>
             <div class="countries-stats">
                 <div class="country-stat">
                     <span class="country-stat-number">20</span>
@@ -424,6 +437,10 @@
                 <div class="country-stat">
                     <span class="country-stat-number">1</span>
                     <span class="country-stat-label">South America</span>
+                </div>
+                <div class="country-stat">
+                    <span class="country-stat-number">1</span>
+                    <span class="country-stat-label">Europe</span>
                 </div>
                 <div class="country-stat">
                     <span class="country-stat-number">1</span>
@@ -904,6 +921,66 @@
         </div>
     </div>
 
+    <!-- Services Section -->
+    <section id="services" class="section services-section">
+        <div class="container">
+            <h2 class="section-title">Services</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>One-to-One Consultation</h3>
+                    <span class="price-badge price-fixed">$100/hr</span>
+                    <p class="service-description">Personalized sessions tailored to your career and professional development needs in geospatial, data science, and BI.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> Career advice & guidance</li>
+                        <li><i class="fas fa-check"></i> CV writing & review</li>
+                        <li><i class="fas fa-check"></i> Job interview preparation</li>
+                        <li><i class="fas fa-check"></i> Portfolio review & feedback</li>
+                    </ul>
+                    <a href="https://calendly.com/demeveng/30min" target="_blank" rel="noopener" class="btn btn-service-primary">
+                        <i class="fas fa-calendar-check"></i> Book a Session
+                    </a>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <h3>Geospatial Mapping</h3>
+                    <span class="price-badge price-custom">Custom Quote</span>
+                    <p class="service-description">Professional mapping and spatial analysis solutions for organizations, researchers, and businesses.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> Choropleth & thematic maps</li>
+                        <li><i class="fas fa-check"></i> Spatial analysis & modeling</li>
+                        <li><i class="fas fa-check"></i> Accessibility modeling</li>
+                        <li><i class="fas fa-check"></i> Remote sensing & land cover</li>
+                    </ul>
+                    <button class="btn btn-service-secondary quote-btn" data-service="Geospatial Mapping">
+                        <i class="fas fa-envelope"></i> Request a Quote
+                    </button>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>BI Development</h3>
+                    <span class="price-badge price-custom">Custom Quote</span>
+                    <p class="service-description">End-to-end business intelligence solutions from data pipelines to interactive dashboards.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> Power BI dashboards</li>
+                        <li><i class="fas fa-check"></i> Data pipelines & ETL</li>
+                        <li><i class="fas fa-check"></i> Automated reporting</li>
+                        <li><i class="fas fa-check"></i> Performance monitoring</li>
+                    </ul>
+                    <button class="btn btn-service-secondary quote-btn" data-service="BI Development">
+                        <i class="fas fa-envelope"></i> Request a Quote
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Contact Section -->
     <section id="contact" class="section contact">
         <div class="container">
@@ -913,6 +990,13 @@
                     <h3>Let's Connect</h3>
                     <p>I'm always interested in discussing new projects, innovative ideas, or opportunities to collaborate on geospatial and public health initiatives.</p>
                     <div class="contact-details">
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <h4>Email</h4>
+                                <p><a href="mailto:tangent.analytics.ca@gmail.com">tangent.analytics.ca@gmail.com</a></p>
+                            </div>
+                        </div>
                         <div class="contact-item">
                             <i class="fas fa-map-marker-alt"></i>
                             <div>
@@ -989,6 +1073,7 @@
                     <a href="#home">Home</a>
                     <a href="#about">About</a>
                     <a href="#portfolio">Portfolio</a>
+                    <a href="#services">Services</a>
                     <a href="#contact">Contact</a>
                 </div>
             </div>
