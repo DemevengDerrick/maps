@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initAnimations();
     initCountriesMap();
     initExperienceCategories();
-    initServiceQuotes();
+
 });
 
 /**
@@ -1085,7 +1085,7 @@ function initAnimations() {
 
     // Add reveal class to elements (excluding experience-items which use CSS animation)
     const revealElements = document.querySelectorAll(
-        '.timeline-item, .skill-card, .publication-card, .portfolio-item, .domain-card, .tool-item, .service-card'
+        '.timeline-item, .skill-card, .publication-card, .portfolio-item, .domain-card, .tool-item'
     );
 
     revealElements.forEach((el, index) => {
@@ -1108,28 +1108,3 @@ function initAnimations() {
     revealElements.forEach(el => observer.observe(el));
 }
 
-/**
- * Service Quotes Module
- * Handles "Request a Quote" buttons that scroll to contact form and pre-fill subject
- */
-function initServiceQuotes() {
-    const quoteBtns = document.querySelectorAll('.quote-btn');
-
-    quoteBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const serviceName = btn.getAttribute('data-service');
-            const subjectField = document.getElementById('subject');
-            const contactSection = document.getElementById('contact');
-
-            if (subjectField) {
-                subjectField.value = `Quote Request: ${serviceName}`;
-                // Trigger input event so the floating label moves up
-                subjectField.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-
-            if (contactSection) {
-                contactSection.scrollIntoView({ behavior: 'smooth' });
-            }
-        });
-    });
-}
