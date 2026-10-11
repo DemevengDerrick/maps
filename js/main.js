@@ -1,1110 +1,751 @@
 /**
- * Derrick Demeveng Portfolio - Main JavaScript
- * Interactive functionality for the portfolio website
+ * Derrick Demeveng — Portfolio
+ * Renders content from js/data.js and wires up interactions & motion.
+ * Motion (GSAP, Lenis, custom cursor) only runs when the libraries loaded and the
+ * visitor has not asked for reduced motion; otherwise the page stays static and fully usable.
  */
+(function () {
+    'use strict';
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize all modules
-    initNavigation();
-    initScrollEffects();
-    initSkillsTabs();
-    initPortfolioFilter();
-    initModal();
-    initExperienceModal();
-    initContactForm();
-    initAnimations();
-    initCountriesMap();
-    initExperienceCategories();
+    const D = window.PORTFOLIO;
+    const root = document.documentElement;
+    const $ = (sel, ctx = document) => ctx.querySelector(sel);
+    const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-});
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const hasGSAP = typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined';
+    const MOTION = hasGSAP && !reducedMotion;
+    root.classList.add(MOTION ? 'motion' : 'no-motion');
 
-/**
- * Navigation Module
- * Handles mobile menu toggle and scroll-based styling
- */
-function initNavigation() {
-    const navbar = document.getElementById('navbar');
-    const navToggle = document.getElementById('navToggle');
-    const navMenu = document.getElementById('navMenu');
-    const navLinks = document.querySelectorAll('.nav-link');
+    const roleKeys = Object.keys(D.roles);
+    const byId = Object.fromEntries(D.projects.map((p) => [p.id, p]));
+    let lenis = null;
 
-    // Mobile menu toggle
-    navToggle?.addEventListener('click', () => {
-        navMenu.classList.toggle('active');
-        navToggle.classList.toggle('active');
-    });
+    /* ======================================================================
+       Rendering
+       ====================================================================== */
 
-    // Close menu when clicking a link
-    navLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            navMenu.classList.remove('active');
-            navToggle?.classList.remove('active');
-        });
-    });
-
-    // Navbar scroll effect
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
-        }
-    });
-
-    // Active link on scroll
-    const sections = document.querySelectorAll('section[id]');
-
-    function updateActiveLink() {
-        const scrollPos = window.scrollY + 100;
-
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.offsetHeight;
-            const sectionId = section.getAttribute('id');
-
-            if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.getAttribute('href') === `#${sectionId}`) {
-                        link.classList.add('active');
-                    }
-                });
-            }
-        });
+    // Display titles are uppercased by CSS; acronyms with meaningful case (EmONC) opt out.
+    const KEEP_CASE = /\b(EmONC)\b/g;
+    function titleHTML(t) {
+        return esc(t).replace(KEEP_CASE, '<span class="keep-case">$1</span>');
     }
 
-    window.addEventListener('scroll', updateActiveLink);
-    updateActiveLink();
-}
-
-/**
- * Scroll Effects Module
- * Handles scroll-triggered animations and counters
- */
-function initScrollEffects() {
-    // Animate stat counters
-    const stats = document.querySelectorAll('.stat-number');
-    let statsAnimated = false;
-
-    function animateStats() {
-        if (statsAnimated) return;
-
-        const aboutSection = document.getElementById('about');
-        if (!aboutSection) return;
-
-        const sectionTop = aboutSection.offsetTop;
-        const sectionHeight = aboutSection.offsetHeight;
-        const scrollPos = window.scrollY + window.innerHeight;
-
-        if (scrollPos > sectionTop + 200) {
-            statsAnimated = true;
-            stats.forEach(stat => {
-                const target = parseInt(stat.getAttribute('data-count'));
-                animateCounter(stat, target);
-            });
-        }
+    function roleChips(keys) {
+        return keys.map((k) => `<li class="role-${k}">${esc(D.roles[k].label)}</li>`).join('');
     }
 
-    function animateCounter(element, target) {
-        const duration = 2000;
-        const step = target / (duration / 16);
-        let current = 0;
-
-        const timer = setInterval(() => {
-            current += step;
-            if (current >= target) {
-                element.textContent = target;
-                clearInterval(timer);
-            } else {
-                element.textContent = Math.floor(current);
-            }
-        }, 16);
+    function initials(p) {
+        return p.roles.map((r) => D.roles[r].label.split(' ').map((w) => w[0]).join('')).join('/');
     }
 
-    window.addEventListener('scroll', animateStats);
-    animateStats(); // Check on load
-
-    // Animate skill bars
-    const skillBars = document.querySelectorAll('.skill-progress');
-    let skillsAnimated = false;
-
-    function animateSkills() {
-        if (skillsAnimated) return;
-
-        const skillsSection = document.getElementById('skills');
-        if (!skillsSection) return;
-
-        const sectionTop = skillsSection.offsetTop;
-        const scrollPos = window.scrollY + window.innerHeight;
-
-        if (scrollPos > sectionTop + 200) {
-            skillsAnimated = true;
-            skillBars.forEach(bar => {
-                const progress = bar.getAttribute('data-progress');
-                setTimeout(() => {
-                    bar.style.width = `${progress}%`;
-                }, 300);
-            });
-        }
+    function coverHTML(p) {
+        const idx = String(D.projects.indexOf(p) + 1).padStart(2, '0');
+        return `<div class="cover role-${p.roles[0]}">
+            <div class="cover-grid"></div>
+            <div class="cover-top"><span>No. ${idx}</span><span>${esc(p.year || '')}</span></div>
+            <div class="cover-title">${titleHTML(p.title)}</div>
+            <div class="cover-stack">${p.tools.slice(0, 3).map(esc).join(' · ')}</div>
+            <span class="cover-glyph" aria-hidden="true">${esc(initials(p))}</span>
+        </div>`;
     }
 
-    window.addEventListener('scroll', animateSkills);
-    animateSkills(); // Check on load
-}
-
-/**
- * Skills Tabs Module
- * Handles tab switching in the skills section
- */
-function initSkillsTabs() {
-    const tabBtns = document.querySelectorAll('.tab-btn');
-    const tabContents = document.querySelectorAll('.tab-content');
-
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const tabId = btn.getAttribute('data-tab');
-
-            // Update button states
-            tabBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            // Update content visibility
-            tabContents.forEach(content => {
-                content.classList.remove('active');
-                if (content.id === tabId) {
-                    content.classList.add('active');
-                }
-            });
-
-            // Re-animate skill bars if showing technical tab
-            if (tabId === 'technical') {
-                const skillBars = document.querySelectorAll('.skill-progress');
-                skillBars.forEach(bar => {
-                    bar.style.width = '0';
-                    const progress = bar.getAttribute('data-progress');
-                    setTimeout(() => {
-                        bar.style.width = `${progress}%`;
-                    }, 100);
-                });
-            }
-        });
-    });
-}
-
-/**
- * Portfolio Filter Module
- * Handles project filtering in the portfolio section
- */
-function initPortfolioFilter() {
-    const filterBtns = document.querySelectorAll('.filter-btn');
-    const portfolioItems = document.querySelectorAll('.portfolio-item');
-
-    filterBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const filter = btn.getAttribute('data-filter');
-
-            // Update button states
-            filterBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            // Filter items
-            portfolioItems.forEach(item => {
-                const category = item.getAttribute('data-category');
-
-                if (filter === 'all' || category === filter) {
-                    item.classList.remove('hidden');
-                    item.style.animation = 'fadeIn 0.5s ease forwards';
-                } else {
-                    item.classList.add('hidden');
-                }
-            });
-        });
-    });
-}
-
-/**
- * Modal Module
- * Handles project detail modal
- */
-function initModal() {
-    const modal = document.getElementById('projectModal');
-    const modalClose = document.getElementById('modalClose');
-    const modalImage = document.getElementById('modalImage');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalCategory = document.getElementById('modalCategory');
-    const modalDescription = document.getElementById('modalDescription');
-    const modalTags = document.getElementById('modalTags');
-    const viewBtns = document.querySelectorAll('.view-btn');
-
-    // Project data
-    const projectData = {
-        'birth-death': {
-            title: 'Cameroon Birth and Death Rates (1960-2024)',
-            category: 'Demographics',
-            description: 'Long-term trends in Cameroon\'s crude birth and death rates revealing sustained natural population growth. The steady decline in both indicators reflects a gradual demographic transition driven by improved survival, health conditions, and slowly declining fertility.',
-            tags: ['Time Series', 'Trend Analysis', 'Demographic Indicators'],
-            image: 'https://github.com/user-attachments/assets/99ef7470-9a81-45e2-a93e-8fc4ecb3dc9b'
-        },
-        'mortality': {
-            title: 'Mortality Trends: Maternal, Under-5, Child, and Infant (1990-2024)',
-            category: 'Demographics',
-            description: 'Analysis of substantial long-term improvements in maternal, infant, neonatal, and under-five survival in Cameroon. The slower reduction in neonatal mortality highlights persistent risks in the first days of life, underscoring the need for sustained investments in maternal care and newborn health services.',
-            tags: ['Mortality Analysis', 'Health Indicators', 'Trend Visualization'],
-            image: 'https://github.com/user-attachments/assets/49066f49-d7bd-4055-a792-1acf8472b524'
-        },
-        'dependency': {
-            title: 'Dependency Ratio Analysis (1960-2024)',
-            category: 'Demographics',
-            description: 'Visualization of demographic pressure on Cameroon\'s working-age population (15-64), showing how they support both a large child population (0-14) and a gradually expanding older population (65+). This analysis highlights the importance of job creation, productivity gains, and strengthened social protection systems.',
-            tags: ['Population Structure', 'Dependency Ratio', 'Demographic Analysis'],
-            image: 'https://github.com/user-attachments/assets/6594dc12-a00d-43d8-993f-d203a2b88517'
-        },
-        'hiv': {
-            title: 'HIV Incidence and Prevalence Among Youth (1990-2024)',
-            category: 'Public Health',
-            description: 'Evolution of HIV incidence and prevalence among young people aged 15-24 in Cameroon. After a peak in the late 1990s and early 2000s, both indicators decline steadily, while persistently higher prevalence among young women highlights ongoing gender disparities requiring targeted interventions.',
-            tags: ['HIV/AIDS', 'Youth Health', 'Gender Analysis'],
-            image: 'https://github.com/user-attachments/assets/1dd492d5-1a99-47d0-af9d-598ffa33da7f'
-        },
-        'dpt1': {
-            title: 'DPT1 Vaccination Coverage (WHO African Region, 2022)',
-            category: 'Public Health',
-            description: 'Choropleth map presenting DPT1 vaccination coverage across the WHO African Region. While several countries achieve coverage above 90%, others remain below 80%, underscoring persistent inequities in routine immunization and the need to reach zero-dose and under-immunized children.',
-            tags: ['Vaccination', 'Choropleth Map', 'Immunization Coverage'],
-            image: 'https://github.com/user-attachments/assets/ac4b780e-efd0-464b-9e4e-c71326517387'
-        },
-        'waterborne-cases': {
-            title: 'Waterborne Disease Distribution in Africa',
-            category: 'Public Health',
-            description: 'Spatial distribution of reported disease cases across Africa, revealing geographic clustering and hotspots of higher burden. The concentration of cases in specific regions highlights spatial inequities in disease transmission and reporting.',
-            tags: ['Disease Mapping', 'Choropleth', 'Epidemiology'],
-            image: 'https://github.com/user-attachments/assets/97d07e9c-0436-413e-b2d3-2ff33cb9987f'
-        },
-        'bivariate': {
-            title: 'Bivariate Map: Cases vs Deaths',
-            category: 'Public Health',
-            description: 'Joint spatial distribution of disease cases and deaths across Africa, highlighting areas where high incidence coincides with high mortality. Darker shades reveal priority hotspots with elevated health burden and severity.',
-            tags: ['Bivariate Mapping', 'Spatial Analysis', 'Health Burden'],
-            image: 'https://github.com/user-attachments/assets/4ce89cb4-ec17-4f75-882d-9f72fbc45ff4'
-        },
-        'hotspot': {
-            title: 'Hotspot Analysis (Spatial Autocorrelation)',
-            category: 'Public Health',
-            description: 'Statistically significant clusters of high and low disease burden identified using spatial autocorrelation methods. High-confidence hotspots reveal areas of concentrated transmission, providing actionable evidence for prioritizing surveillance and resource allocation.',
-            tags: ['Hotspot Analysis', 'Spatial Statistics', 'Getis-Ord Gi*'],
-            image: 'https://github.com/user-attachments/assets/e30f9c3a-fb38-44c5-824e-fdd24cc75e46'
-        },
-        'disease-clusters': {
-            title: 'Disease-Specific Cluster Analysis (2019-2023)',
-            category: 'Public Health',
-            description: 'Multi-panel spatial cluster analysis of major waterborne diseases (malaria, diarrhoea, dengue, cholera, typhoid) across the WHO African Region. Recurring hotspots along river basins, lake regions, and densely populated corridors underscore links between water systems, environmental conditions, and disease transmission.',
-            tags: ['Cluster Analysis', 'Multi-Disease', 'Spatial Epidemiology'],
-            image: 'https://github.com/user-attachments/assets/f3243f8c-450a-425d-99ae-e3d86c21994f'
-        },
-        'es-dashboard': {
-            title: 'Environmental Surveillance Dashboard (WHO African Region)',
-            category: 'Public Health',
-            description: 'Dashboard summarizing Environmental Surveillance performance indicators across the WHO African Region (South-East sub-region) from March 2023 to March 2024. Monitors site coverage, sample collection, timeliness, sample quality, and enterovirus detection to strengthen polio surveillance.',
-            tags: ['Dashboard', 'Surveillance', 'Performance Monitoring'],
-            image: 'https://github.com/user-attachments/assets/5db70c7a-1db1-41eb-825d-dc1823930a8a'
-        },
-        'ev-isolation': {
-            title: 'Enterovirus Isolation Rates by Site',
-            category: 'Public Health',
-            description: 'Spatial distribution of enterovirus (EV) isolation rates by environmental surveillance site. Variability in site performance helps identify locations with suboptimal detection rates, guiding targeted actions to strengthen sampling quality.',
-            tags: ['Polio Surveillance', 'Site Performance', 'Spatial Mapping'],
-            image: 'https://github.com/user-attachments/assets/9856656d-2bb1-4228-a3f0-4246bd4956a0'
-        },
-        'gdp-cemac': {
-            title: 'GDP Growth: Cameroon vs CEMAC Countries (1960-2024)',
-            category: 'Economics',
-            description: 'Comparative analysis highlighting Cameroon\'s sustained and resilient economic expansion relative to other CEMAC countries. While peer economies show greater volatility, Cameroon\'s steady trajectory has widened its economic lead within the sub-region.',
-            tags: ['GDP Analysis', 'Economic Comparison', 'CEMAC'],
-            image: 'https://github.com/user-attachments/assets/4cc297ad-5676-40be-b325-3f267dfec8f6'
-        },
-        'gdp-regional': {
-            title: 'GDP Growth: Western & Central Africa (1960-2024)',
-            category: 'Economics',
-            description: 'Broader regional context comparing Cameroon with Western and Central African countries. Despite Nigeria\'s dominance in absolute size, Cameroon shows steadier expansion, positioning it among leading mid-sized economies in the region.',
-            tags: ['Regional Economics', 'Comparative Analysis', 'Time Series'],
-            image: 'https://github.com/user-attachments/assets/65f71559-45a5-47ce-94a6-6794bc7255bd'
-        },
-        'gdp-proportional': {
-            title: 'Proportional Symbol Map: Regional GDP (2024)',
-            category: 'Economics',
-            description: 'National GDP levels visualized using proportional symbols, highlighting economic output concentration in Nigeria and a second tier led by Cameroon, Ghana, and Côte d\'Ivoire. Accompanying time series shows sustained regional growth since the early 2000s.',
-            tags: ['Proportional Symbols', 'Economic Mapping', 'GDP Visualization'],
-            image: 'https://github.com/user-attachments/assets/b16b3292-aa30-4ada-b4e0-d7dc41533a9f'
-        },
-        'accessibility': {
-            title: 'Education Accessibility in Dschang, Cameroon',
-            category: 'Geospatial',
-            description: 'Accessibility modeling for primary and secondary schools under motorized and walking travel scenarios. The analysis reveals strong accessibility advantages near urban cores while peripheral and mountainous areas experience significantly longer travel times, informing school placement and transport planning.',
-            tags: ['Accessibility Analysis', 'Travel Time', 'Education Planning'],
-            image: 'https://github.com/user-attachments/assets/c62be97b-ee3f-4f74-ac72-b9d29e055256'
-        },
-        'pacific': {
-            title: 'Pacific Ocean Countries Map',
-            category: 'Geospatial',
-            description: 'Geographic visualization of Pacific Ocean countries alongside Australia and New Zealand, illustrating the wide dispersion of small island states. The map highlights the region\'s vast oceanic scale, spatial isolation, and logistical complexity—key factors shaping development planning and regional cooperation.',
-            tags: ['Regional Mapping', 'Island States', 'Geographic Context'],
-            image: 'https://github.com/user-attachments/assets/e0604083-8703-4028-8529-54847d2ccb58'
-        },
-        'landcover': {
-            title: 'Vegetation Extraction in Akwa Ibom State, Nigeria',
-            category: 'Environment',
-            description: 'Satellite-derived land cover analysis isolating tree vegetation from built-up areas and linear infrastructure. The analysis highlights spatial extent and fragmentation of vegetation, providing a baseline for environmental monitoring and land-use planning.',
-            tags: ['Land Cover', 'Remote Sensing', 'Vegetation Analysis'],
-            image: 'https://github.com/user-attachments/assets/a6e93ac1-c3cd-41ff-b726-e00ab51fb66d'
-        },
-        'vegetation-patches': {
-            title: 'Large Vegetation Patch Identification (≥15 km²)',
-            category: 'Environment',
-            description: 'Identification of contiguous tree vegetation areas of at least 15 km² after removing roads and river corridors. Analysis shows remaining large vegetation patches and their proximity to settlements, supporting conservation planning and environmental impact assessments.',
-            tags: ['Conservation', 'Patch Analysis', 'Environmental Planning'],
-            image: 'https://github.com/user-attachments/assets/6ab24703-e7ff-46ae-98fd-9eb0a2fd4621'
-        }
-    };
-
-    // Open modal
-    viewBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const projectId = btn.getAttribute('data-project');
-            const project = projectData[projectId];
-
-            if (project) {
-                modalImage.src = project.image;
-                modalImage.alt = project.title;
-                modalTitle.textContent = project.title;
-                modalCategory.textContent = project.category;
-                modalDescription.textContent = project.description;
-
-                // Clear and add tags
-                modalTags.innerHTML = '';
-                project.tags.forEach(tag => {
-                    const tagSpan = document.createElement('span');
-                    tagSpan.textContent = tag;
-                    modalTags.appendChild(tagSpan);
-                });
-
-                modal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
-        });
-    });
-
-    // Close modal
-    function closeModal() {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
+    function mediaHTML(p, eager) {
+        return p.image
+            ? `<img src="${esc(p.image)}" alt="${esc(p.title)}" loading="${eager ? 'eager' : 'lazy'}" decoding="async">`
+            : coverHTML(p);
     }
 
-    modalClose?.addEventListener('click', closeModal);
-
-    modal?.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            closeModal();
-        }
-    });
-
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal?.classList.contains('active')) {
-            closeModal();
-        }
-    });
-}
-
-/**
- * Experience Modal Module
- * Handles the experience carousel modal
- */
-function initExperienceModal() {
-    const modal = document.getElementById('experienceModal');
-    const modalClose = document.getElementById('experienceModalClose');
-    const experienceItems = document.querySelectorAll('.experience-item');
-
-    // Experience data
-    const experienceData = {
-        'unfpa': {
-            title: 'Program Specialist, Geospatial Analysis',
-            organization: 'United Nations Population Fund (UNFPA) - Data, Demography and Development Branch',
-            location: 'Nairobi, Kenya',
-            date: 'March 2025 - Present',
-            logo: 'images/unfpa.png',
-            logoType: 'image',
-            responsibilities: 'Programme Specialist, Geospatial Analysis at UNFPA HQ, leading the design and application of integrated geospatial and statistical methods to support LNOB (Leave No One Behind) analysis, population vulnerability assessments, and access to SRH services. Oversee geospatial data platforms, dashboards, and capacity building across HQ, regions, and countries, while representing UNFPA in inter-agency and global data-innovation initiatives.',
-            achievements: [
-                'Provided strategic leadership for the organization global Enterprise GIS ecosystem, overseeing software licensing, vendor and service provider contracts, reviewing guidelines for procurement of satellite imagery and GIS infrastructures to support Censuses in countries, and cost-optimization strategies, while coordinating third-party contractors to deliver scalable, standards-compliant data platforms.',
-                'Supported the coordination with technical vendors in the development of the global population data and demographic intelligence from open-source platforms to provide insight into sexual and reproductive health and rights.',
-                'Supported the international rollout of the Degree of Urbanization (DEGURBA) methodology using population censuses and built-up data across five countries, enabling standardized urban-rural classification and cross-country comparability of SDG indicators for policy and planning.',
-                'Supported regional training of five country GIS focal points in conducting geospatial accessibility analysis to support Emergency Obstetric and Newborn Care (EmONC) prioritization exercises in countries.',
-                'Developed end-to-end geospatial analytics pipelines in R for climate risk and flood-exposure modeling, integrating population and hazard data to support targeted, data-driven interventions and resilience planning for vulnerable populations.',
-                'Built interactive decision-support dashboards in Power BI, including a global Census Tracking Dashboard, to monitor implementation status, timelines, and gaps, strengthening data-driven oversight and strategic decision-making.'
-            ]
-        },
-        'who-data': {
-            title: 'Data Analyst',
-            organization: 'World Health Organization - Data & Information Management Unit',
-            location: 'Brazzaville, Congo',
-            date: 'January 2024 - February 2025',
-            logo: 'images/WHO.jpg',
-            logoType: 'image',
-            responsibilities: 'In charge of the management of the WHO Regional Polio laboratory databases including Acute Flaccid Paralysis (AFP) data and Environmental Surveillance data. This includes supporting the development of a new Centralized web-based Information for Action Platform (WebIFA) for connecting country and laboratory databases.',
-            achievements: [
-                'Developed data governance and quality frameworks for polio surveillance data, including standardized validation rules and quality guidelines applied across regional datasets.',
-                'Built automated ETL pipelines in R to ingest, transform, and harmonize laboratory and surveillance data from 16 polio laboratories into centralized data management and analytics systems used by the Global Polio Eradication Network.',
-                'Implemented automated data quality checks, analysis, and reporting workflows in R, generating reproducible reports and distributing outputs automatically to multiple stakeholder groups.',
-                'Contributed to the development of an R package for polio data management, supporting reusable, modular, and maintainable data processing and analysis workflows.',
-                'Supported the technical design and regional rollout of a Web Information for Action (WEBIFA) platform, including review of technical specifications, implementation planning, and capacity building across 47 countries and 16 laboratories.'
-            ]
-        },
-        'who-gis': {
-            title: 'GIS Analyst',
-            organization: 'World Health Organization - African Regional Office, GIS Center',
-            location: 'Brazzaville, Congo',
-            date: 'January 2021 - December 2023',
-            logo: 'images/WHO.jpg',
-            logoType: 'image',
-            responsibilities: 'Coordination with regional working groups, country focal points, ministries of health, and partners on the introduction and orientation of electronic surveillance data collection tools in countries. Providing technical guidance to countries on the preparation of national ES monitoring plans for priority settings. Coordination with technical partners on the development of geospatial data management platform for polio surveillance. Development and maintenance of business intelligence dashboards, provision of regular analytical outputs to country teams, and participation in periodic desk reviews of surveillance activities through data analysis and coordination calls with key stakeholders.',
-            achievements: [
-                'Designed and maintained regional ETL pipelines using KNIME, Python, and PostgreSQL, extracting surveillance data from ODK/ONA servers, performing data validation and transformation, and loading structured datasets to support analytics across 47 countries.',
-                'Developed automated geospatial data ingestion and processing tools using Python (ArcPy), including a custom ArcGIS Pro toolbox and Python notebooks to synchronize data between ODK servers, ArcGIS Pro, and ArcGIS Online.',
-                'Built and released an open-source QGIS plugin enabling direct ingestion of ODK/ONA data into QGIS, reducing manual data handling and improving efficiency in geospatial data management workflows.',
-                'Designed and managed centralized geospatial databases using PostgreSQL/PostGIS, including schema design, user access management, and spatial data standardization for regional-scale analytics.',
-                'Developed interactive analytics and performance monitoring dashboards using Power BI, translating complex surveillance and geospatial datasets into actionable insights for regional decision-making.'
-            ]
-        },
-        'bmgf': {
-            title: 'GIS Analyst',
-            organization: 'Bill & Melinda Gates Foundation (BMGF)',
-            location: 'Brazzaville, Congo',
-            date: 'June 2020 - December 2020',
-            logo: 'images/gates_foundation.png',
-            logoType: 'image',
-            responsibilities: 'Providing GIS and data analysis support during outbreak response activities, supporting the mapping of surveillance sites, and supporting the preparation and sharing of surveillance datasets at local, national, and regional levels. Supporting the rollout and routine follow-up of electronic data collection tools, monitoring incoming data submissions, and supporting data workflows between field data collection systems and national, regional, and global information platforms.',
-            achievements: [
-                'Managed the Geospatial Polio Environmental Surveillance data platform for the World Health Organization (WHO) regional office for Africa, cataloging more than 500 surveillance sites, watersheds and population data across 47 countries.',
-                'Supported the training, validation, and quality assurance of machine learning models for building and settlement extraction from satellite imagery across Africa, contributing to population estimates used for immunization planning and micro-planning activities.',
-                'Supported the WHO AFRO GIS Center in the collection, validation, and dissemination of baseline geospatial datasets, including population data and points of interest (POIs) to support geostatistical population modeling and analytics for immunization activities across 47 countries.',
-                'Supported the initiation, review, and expansion of Geospatial technologies for Environmental Surveillance (ES) of poliovirus across four (04) African countries (Mauritania, Burkina Faso, Benin, and Chad), including capacity building of more than hundred (100) field data collectors and country data managers on the use of mobile phones, and GIS workflows to conduct data quality assurance, and KPI-based performance monitoring.',
-                'Developed dynamic M&E dashboards using ArcGIS Online Dashboard to monitor the performance of Environmental Surveillance activities, enabling real-time tracking of key program indicators and operational decision-making.'
-            ]
-        },
-        'sogefi': {
-            title: 'Geomatic Project Manager',
-            organization: 'SOGEFI',
-            location: 'Yaounde, Cameroon',
-            date: 'August 2019 - May 2020',
-            logo: 'images/SOGEFI2.jpg',
-            logoType: 'image',
-            responsibilities: 'Coordinating geospatial projects across Africa, including managing the GeoOSM project, an open-source geospatial data infrastructure initiative covering multiple African countries. Overseeing GIS, GNSS, and drone mapping activities; supervising geospatial data collection projects; and supporting the development and maintenance of geospatial data infrastructures using open-source technologies. Managing geospatial data and systems, providing technical support to clients, delivering GIS training and capacity-building activities, contributing to tender preparation and responses, and producing technical documentation.',
-            achievements: [
-                'Supported land-cover mapping in Cameroon using satellite imagery and machine learning-based image classification techniques, including Support Vector Machines (SVM), Random Forest, and Maximum Likelihood algorithms.',
-                'Led a team of two (02) software developers in the design, development, testing, deployment, and scaling of an open-source geospatial data infrastructure (GeoOSM) built on OpenStreetMap data across twenty (20) African countries. Responsibilities included technical oversight, code review and troubleshooting, geospatial database design using PostgreSQL/PostGIS, QGIS Server management, and capacity building through advocacy, training, and technical support.',
-                'Managed a multidisciplinary team of four (04) staff and over twenty (20) field data collectors to deliver a World Bank-funded flood risk mapping project in Yaoundé and Douala, applying participatory mapping and focus group discussions, and leveraging mobile data collection platforms and GIS workflows to map and validate over 1,000,000 socioeconomic activities in flood-prone areas.',
-                'Led a team of ten (10) field mappers to conduct large-scale mapping of more than hundred thousand (100,000) socioeconomic activities in Cameroon\'s Southwest Region, supporting the assessment of the economic impacts of the ongoing crisis.',
-                'Directed the mapping of health and protection services in 18 African cities under the UNESCO-funded project Integration of Sexual, Reproductive, Support, and Protection Services for Adolescents and Young People.',
-                'Led a team of two developers in the development of a Humanitarian Rapid Response Mechanism (RRM) platform for Premier Urgence International and Action Against Hunger, supporting timely data collection, analysis, and decision-making in emergency response contexts.'
-            ]
-        },
-        'sgds': {
-            title: 'Survey Engineer',
-            organization: 'SGDS International',
-            location: 'Yaounde, Cameroon',
-            date: 'September 2018 - July 2019',
-            logo: 'images/SGDS_International.png',
-            logoType: 'image',
-            responsibilities: 'Overseeing the project of densification of Cameroon\'s national geodetic network in the Centre and Littoral regions, preliminary mapping of the network, GNSS observations, baseline postprocessing, triangulation of inaccessible references.',
-            achievements: [
-                'Led a team of three surveyors in the establishment of 200 geodetic control pillars across five towns in Cameroon, supporting the expansion of the national geodetic network.',
-                'Planned, executed, and post-processed geodetic baseline observations for the 200 control pillars using least-squares adjustment methods to ensure positional accuracy and network consistency.',
-                'Contributed to the preparation of the project\'s final technical report submitted to the Ministry of Lands and Surveys, including documentation of methodology, results, and quality assurance procedures.'
-            ]
-        },
-        'ggf': {
-            title: 'Survey Engineer',
-            organization: 'Group Galant & Friends',
-            location: 'Yaounde, Cameroon',
-            date: 'September 2017 - August 2018',
-            logo: 'GGF',
-            logoType: 'text',
-            responsibilities: 'Overseeing all topographic and geodesic mapping projects. These tasks included planning of topographic and geodesic data collection missions, stakeout, and surveying of geodesic reference points on road corridors, drone mapping of road corridors and production of orthophotos, digital elevation models (DEM), and points clouds, ground topographic surveys using total stations, designing of urban, interurban, and rural roads, quantitative surveys, production of technical documents.',
-            achievements: [
-                'Led a team of two surveyors in conducting large-scale topographic surveys covering over 300 km of road infrastructure in Cameroon, using GNSS, total stations, and drone mapping. Responsibilities included data processing, cut-and-fill computations, and preparation of detailed topographic survey reports.',
-                'Led a team of two surveyors in carrying out topographic surveys for more than 50 culverts and two bridges in Cameroon, including survey setup, data processing, cut-and-fill analysis, and production of technical topographic reports.'
-            ]
-        }
-    };
-
-    // Open modal function
-    function openExperienceModal(experienceId) {
-        const experience = experienceData[experienceId];
-        if (!experience) return;
-
-        // Set modal content
-        const logoContainer = document.getElementById('expModalLogo');
-        if (experience.logoType === 'image') {
-            logoContainer.innerHTML = `<img src="${experience.logo}" alt="${experience.organization} Logo">`;
-            logoContainer.classList.remove('text-logo');
-        } else {
-            logoContainer.innerHTML = `<span>${experience.logo}</span>`;
-            logoContainer.classList.add('text-logo');
-        }
-
-        document.getElementById('expModalTitle').textContent = experience.title;
-        document.getElementById('expModalOrg').textContent = experience.organization;
-        document.getElementById('expModalLocation').querySelector('span').textContent = experience.location;
-        document.getElementById('expModalDate').querySelector('span').textContent = experience.date;
-        document.getElementById('expModalResponsibilities').textContent = experience.responsibilities;
-
-        // Build achievements list
-        const achievementsList = document.getElementById('expModalAchievements');
-        const achievementsHeading = achievementsList.previousElementSibling;
-        achievementsList.innerHTML = '';
-
-        // Hide achievements section if no achievements
-        if (experience.achievements && experience.achievements.length > 0) {
-            achievementsHeading.style.display = 'block';
-            achievementsList.style.display = 'block';
-            experience.achievements.forEach(achievement => {
-                const li = document.createElement('li');
-                li.textContent = achievement;
-                achievementsList.appendChild(li);
-            });
-        } else {
-            achievementsHeading.style.display = 'none';
-            achievementsList.style.display = 'none';
-        }
-
-        // Show modal
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
+    function renderMarquee() {
+        const track = $('.marquee-track');
+        const group = () => `<div class="marquee-group">${D.tools.map((t) =>
+            `<span class="marquee-item">${esc(t)}</span><span class="marquee-sep"></span>`).join('')}</div>`;
+        track.innerHTML = group() + group();
     }
 
-    // Close modal function
-    function closeExperienceModal() {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-
-    // Add click listeners to experience items
-    experienceItems.forEach(item => {
-        item.addEventListener('click', () => {
-            const experienceId = item.getAttribute('data-experience');
-            openExperienceModal(experienceId);
-        });
-    });
-
-    // Close modal on button click
-    modalClose?.addEventListener('click', closeExperienceModal);
-
-    // Close modal on backdrop click
-    modal?.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            closeExperienceModal();
-        }
-    });
-
-    // Close modal on Escape key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal?.classList.contains('active')) {
-            closeExperienceModal();
-        }
-    });
-}
-
-/**
- * Countries Map Module
- * Displays an interactive map of visited countries
- */
-function initCountriesMap() {
-    const mapContainer = document.getElementById('countriesMap');
-    if (!mapContainer || typeof L === 'undefined') return;
-
-    // Initialize the map centered on Africa (zoom only via buttons)
-    const map = L.map('countriesMap', {
-        center: [10, 20],
-        zoom: 2,
-        minZoom: 2,
-        maxZoom: 6,
-        scrollWheelZoom: false,
-        doubleClickZoom: false,
-        touchZoom: false,
-        dragging: true
-    });
-
-    // Add tile layer (CartoDB Positron for clean look)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: 'abcd',
-        maxZoom: 20
-    }).addTo(map);
-
-    // Country data with coordinates for markers
-    const visitedCountries = {
-        'MRT': { name: 'Mauritania', coords: [20.3, -10.5] },
-        'SEN': { name: 'Senegal', coords: [14.5, -14.5] },
-        'GMB': { name: 'Gambia', coords: [13.5, -15.5] },
-        'GHA': { name: 'Ghana', coords: [7.9, -1.0] },
-        'CIV': { name: "Côte d'Ivoire", coords: [7.5, -5.5] },
-        'TGO': { name: 'Togo', coords: [8.6, 0.8] },
-        'BEN': { name: 'Benin', coords: [9.3, 2.3] },
-        'NGA': { name: 'Nigeria', coords: [9.1, 8.7] },
-        'BFA': { name: 'Burkina Faso', coords: [12.2, -1.5] },
-        'CMR': { name: 'Cameroon', coords: [5.9, 12.4] },
-        'GAB': { name: 'Gabon', coords: [-0.8, 11.6] },
-        'TCD': { name: 'Chad', coords: [15.5, 19.0] },
-        'COG': { name: 'Republic of Congo', coords: [-0.2, 15.8] },
-        'COD': { name: 'DR Congo', coords: [-4.0, 21.8] },
-        'KEN': { name: 'Kenya', coords: [-0.5, 38.0] },
-        'TZA': { name: 'Tanzania', coords: [-6.4, 34.9] },
-        'MWI': { name: 'Malawi', coords: [-13.3, 34.3] },
-        'MDG': { name: 'Madagascar', coords: [-18.9, 46.9] },
-        'RWA': { name: 'Rwanda', coords: [-1.9, 29.9] },
-        'ETH': { name: 'Ethiopia', coords: [9.1, 40.5] },
-        'PRY': { name: 'Paraguay', coords: [-23.4, -58.4] },
-        'QAT': { name: 'Qatar', coords: [25.4, 51.2] },
-        'DOM': { name: 'Dominican Republic', coords: [18.7, -70.2] },
-        'USA': { name: 'United States', coords: [37.1, -95.7] },
-        'CAN': { name: 'Canada', coords: [56.1, -106.3] },
-        'ALB': { name: 'Albania', coords: [41.15, 20.17] }
-    };
-
-    const visitedCodes = Object.keys(visitedCountries);
-
-    // Custom marker icon
-    const markerIcon = L.divIcon({
-        className: 'country-marker',
-        html: '<div class="marker-dot"></div>',
-        iconSize: [12, 12],
-        iconAnchor: [6, 6]
-    });
-
-    // Fetch GeoJSON data for world countries
-    fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
-        .then(response => response.json())
-        .then(data => {
-            L.geoJSON(data, {
-                style: function(feature) {
-                    const countryCode = feature.properties.ISO_A3;
-                    const isVisited = visitedCodes.includes(countryCode);
-                    return {
-                        fillColor: isVisited ? '#2563eb' : '#e2e8f0',
-                        weight: 1,
-                        opacity: 1,
-                        color: '#ffffff',
-                        fillOpacity: isVisited ? 0.7 : 0.3
-                    };
-                },
-                onEachFeature: function(feature, layer) {
-                    const countryCode = feature.properties.ISO_A3;
-                    if (visitedCodes.includes(countryCode)) {
-                        const countryData = visitedCountries[countryCode];
-                        layer.on({
-                            mouseover: function(e) {
-                                e.target.setStyle({
-                                    fillOpacity: 0.9,
-                                    weight: 2
-                                });
-                            },
-                            mouseout: function(e) {
-                                e.target.setStyle({
-                                    fillOpacity: 0.7,
-                                    weight: 1
-                                });
-                            }
-                        });
-                    }
-                }
-            }).addTo(map);
-
-            // Add markers at center of each visited country
-            Object.keys(visitedCountries).forEach(code => {
-                const country = visitedCountries[code];
-                const marker = L.marker(country.coords, { icon: markerIcon })
-                    .addTo(map)
-                    .bindTooltip(country.name, {
-                        permanent: false,
-                        direction: 'top',
-                        offset: [0, -5],
-                        className: 'country-tooltip'
-                    });
-            });
-        })
-        .catch(error => {
-            console.error('Error loading countries GeoJSON:', error);
-        });
-}
-
-/**
- * Contact Form Module
- * Handles form validation and submission via Formspree
- */
-function initContactForm() {
-    const form = document.getElementById('contactForm');
-
-    form?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        // Get form data
-        const formData = new FormData(form);
-        const data = Object.fromEntries(formData);
-
-        // Simple validation
-        if (!data.name || !data.email || !data.message) {
-            showNotification('Please fill in all required fields.', 'error');
-            return;
-        }
-
-        if (!isValidEmail(data.email)) {
-            showNotification('Please enter a valid email address.', 'error');
-            return;
-        }
-
-        // Show sending notification
-        showNotification('Sending message...', 'info');
-
-        try {
-            const response = await fetch(form.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'Accept': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                showNotification('Message sent successfully! I\'ll get back to you soon.', 'success');
-                form.reset();
-            } else {
-                throw new Error('Form submission failed');
-            }
-        } catch (error) {
-            showNotification('Failed to send message. Please try again or reach out via social media.', 'error');
-        }
-    });
-}
-
-function isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function showNotification(message, type = 'info') {
-    // Remove existing notification
-    const existing = document.querySelector('.notification');
-    if (existing) existing.remove();
-
-    // Create notification
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.innerHTML = `
-        <span>${message}</span>
-        <button class="notification-close">&times;</button>
-    `;
-
-    // Add styles
-    notification.style.cssText = `
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        padding: 15px 25px;
-        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
-        color: white;
-        border-radius: 10px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        z-index: 3000;
-        animation: slideIn 0.3s ease;
-    `;
-
-    document.body.appendChild(notification);
-
-    // Close button
-    notification.querySelector('.notification-close').addEventListener('click', () => {
-        notification.remove();
-    });
-
-    // Auto remove
-    setTimeout(() => {
-        if (notification.parentElement) {
-            notification.style.animation = 'slideOut 0.3s ease forwards';
-            setTimeout(() => notification.remove(), 300);
-        }
-    }, 5000);
-}
-
-/**
- * Experience Categories Module
- * Displays achievements categorized by Geospatial/Data Analysis, BI Analysis, and Data Engineering
- */
-function initExperienceCategories() {
-    const tabBtns = document.querySelectorAll('.exp-tab-btn');
-    const tabContents = document.querySelectorAll('.exp-tab-content');
-
-    // Categorized experience data — achievements split across roles
-    const categorizedExperience = {
-        geospatial: [
-            {
-                org: 'United Nations Population Fund (UNFPA)',
-                logo: 'images/unfpa.png',
-                logoType: 'image',
-                role: 'Program Specialist, Geospatial Analysis',
-                date: 'March 2025 - Present',
-                achievements: [
-                    'Provided strategic leadership for the organization global Enterprise GIS ecosystem, overseeing software licensing, vendor and service provider contracts, reviewing guidelines for procurement of satellite imagery and GIS infrastructures to support Censuses in countries, and cost-optimization strategies, while coordinating third-party contractors to deliver scalable, standards-compliant data platforms.',
-                    'Supported the coordination with technical vendors in the development of the global population data and demographic intelligence from open-source platforms to provide insight into sexual and reproductive health and rights.',
-                    'Supported the international rollout of the Degree of Urbanization (DEGURBA) methodology using population censuses and built-up data across five countries, enabling standardized urban-rural classification and cross-country comparability of SDG indicators for policy and planning.',
-                    'Supported regional training of five country GIS focal points in conducting geospatial accessibility analysis to support Emergency Obstetric and Newborn Care (EmONC) prioritization exercises in countries.',
-                    'Developed end-to-end geospatial analytics pipelines in R for climate risk and flood-exposure modeling, integrating population and hazard data to support targeted, data-driven interventions and resilience planning for vulnerable populations.'
-                ]
-            },
-            {
-                org: 'World Health Organization - GIS Center',
-                logo: 'images/WHO.jpg',
-                logoType: 'image',
-                role: 'GIS Analyst',
-                date: 'January 2021 - December 2023',
-                achievements: [
-                    'Developed automated geospatial data ingestion and processing tools using Python (ArcPy), including a custom ArcGIS Pro toolbox and Python notebooks to synchronize data between ODK servers, ArcGIS Pro, and ArcGIS Online.'
-                ]
-            },
-            {
-                org: 'Bill & Melinda Gates Foundation (BMGF)',
-                logo: 'images/gates_foundation.png',
-                logoType: 'image',
-                role: 'GIS Analyst',
-                date: 'June 2020 - December 2020',
-                achievements: [
-                    'Managed the Geospatial Polio Environmental Surveillance data platform for the World Health Organization (WHO) regional office for Africa, cataloging more than 500 surveillance sites, watersheds and population data across 47 countries.',
-                    'Supported the training, validation, and quality assurance of machine learning models for building and settlement extraction from satellite imagery across Africa, contributing to population estimates used for immunization planning and micro-planning activities.',
-                    'Supported the WHO AFRO GIS Center in the collection, validation, and dissemination of baseline geospatial datasets, including population data and points of interest (POIs) to support geostatistical population modeling and analytics for immunization activities across 47 countries.',
-                    'Supported the initiation, review, and expansion of Geospatial technologies for Environmental Surveillance (ES) of poliovirus across four (04) African countries (Mauritania, Burkina Faso, Benin, and Chad), including capacity building of more than hundred (100) field data collectors and country data managers on the use of mobile phones, and GIS workflows to conduct data quality assurance, and KPI-based performance monitoring.'
-                ]
-            },
-            {
-                org: 'SOGEFI',
-                logo: 'images/SOGEFI2.jpg',
-                logoType: 'image',
-                role: 'Geomatic Project Manager',
-                date: 'August 2019 - May 2020',
-                achievements: [
-                    'Supported land-cover mapping in Cameroon using satellite imagery and machine learning-based image classification techniques, including Support Vector Machines (SVM), Random Forest, and Maximum Likelihood algorithms.',
-                    'Managed a multidisciplinary team of four (04) staff and over twenty (20) field data collectors to deliver a World Bank-funded flood risk mapping project in Yaoundé and Douala, applying participatory mapping and focus group discussions, and leveraging mobile data collection platforms and GIS workflows to map and validate over 1,000,000 socioeconomic activities in flood-prone areas.',
-                    'Led a team of ten (10) field mappers to conduct large-scale mapping of more than hundred thousand (100,000) socioeconomic activities in Cameroon\'s Southwest Region, supporting the assessment of the economic impacts of the ongoing crisis.',
-                    'Directed the mapping of health and protection services in 18 African cities under the UNESCO-funded project Integration of Sexual, Reproductive, Support, and Protection Services for Adolescents and Young People.'
-                ]
-            },
-            {
-                org: 'SGDS International',
-                logo: 'images/SGDS_International.png',
-                logoType: 'image',
-                role: 'Survey Engineer',
-                date: 'September 2018 - July 2019',
-                achievements: [
-                    'Led a team of three surveyors in the establishment of 200 geodetic control pillars across five towns in Cameroon, supporting the expansion of the national geodetic network.',
-                    'Planned, executed, and post-processed geodetic baseline observations for the 200 control pillars using least-squares adjustment methods to ensure positional accuracy and network consistency.',
-                    'Contributed to the preparation of the project\'s final technical report submitted to the Ministry of Lands and Surveys, including documentation of methodology, results, and quality assurance procedures.'
-                ]
-            },
-            {
-                org: 'Group Galant & Friends',
-                logo: 'GGF',
-                logoType: 'text',
-                role: 'Survey Engineer',
-                date: 'September 2017 - August 2018',
-                achievements: [
-                    'Led a team of two surveyors in conducting large-scale topographic surveys covering over 300 km of road infrastructure in Cameroon, using GNSS, total stations, and drone mapping. Responsibilities included data processing, cut-and-fill computations, and preparation of detailed topographic survey reports.',
-                    'Led a team of two surveyors in carrying out topographic surveys for more than 50 culverts and two bridges in Cameroon, including survey setup, data processing, cut-and-fill analysis, and production of technical topographic reports.'
-                ]
-            }
-        ],
-        bi: [
-            {
-                org: 'United Nations Population Fund (UNFPA)',
-                logo: 'images/unfpa.png',
-                logoType: 'image',
-                role: 'Program Specialist, Geospatial Analysis',
-                date: 'March 2025 - Present',
-                achievements: [
-                    'Built interactive decision-support dashboards in Power BI, including a global Census Tracking Dashboard, to monitor implementation status, timelines, and gaps, strengthening data-driven oversight and strategic decision-making.'
-                ]
-            },
-            {
-                org: 'World Health Organization - Data & Information Management Unit',
-                logo: 'images/WHO.jpg',
-                logoType: 'image',
-                role: 'Data Analyst',
-                date: 'January 2024 - February 2025',
-                achievements: [
-                    'Implemented automated data quality checks, analysis, and reporting workflows in R, generating reproducible reports and distributing outputs automatically to multiple stakeholder groups.'
-                ]
-            },
-            {
-                org: 'World Health Organization - GIS Center',
-                logo: 'images/WHO.jpg',
-                logoType: 'image',
-                role: 'GIS Analyst',
-                date: 'January 2021 - December 2023',
-                achievements: [
-                    'Developed interactive analytics and performance monitoring dashboards using Power BI, translating complex surveillance and geospatial datasets into actionable insights for regional decision-making.'
-                ]
-            },
-            {
-                org: 'Bill & Melinda Gates Foundation (BMGF)',
-                logo: 'images/gates_foundation.png',
-                logoType: 'image',
-                role: 'GIS Analyst',
-                date: 'June 2020 - December 2020',
-                achievements: [
-                    'Developed dynamic M&E dashboards using ArcGIS Online Dashboard to monitor the performance of Environmental Surveillance activities, enabling real-time tracking of key program indicators and operational decision-making.'
-                ]
-            }
-        ],
-        de: [
-            {
-                org: 'World Health Organization - Data & Information Management Unit',
-                logo: 'images/WHO.jpg',
-                logoType: 'image',
-                role: 'Data Analyst',
-                date: 'January 2024 - February 2025',
-                achievements: [
-                    'Developed data governance and quality frameworks for polio surveillance data, including standardized validation rules and quality guidelines applied across regional datasets.',
-                    'Built automated ETL pipelines in R to ingest, transform, and harmonize laboratory and surveillance data from 16 polio laboratories into centralized data management and analytics systems used by the Global Polio Eradication Network.',
-                    'Contributed to the development of an R package for polio data management, supporting reusable, modular, and maintainable data processing and analysis workflows.',
-                    'Supported the technical design and regional rollout of a Web Information for Action (WEBIFA) platform, including review of technical specifications, implementation planning, and capacity building across 47 countries and 16 laboratories.'
-                ]
-            },
-            {
-                org: 'World Health Organization - GIS Center',
-                logo: 'images/WHO.jpg',
-                logoType: 'image',
-                role: 'GIS Analyst',
-                date: 'January 2021 - December 2023',
-                achievements: [
-                    'Designed and maintained regional ETL pipelines using KNIME, Python, and PostgreSQL, extracting surveillance data from ODK/ONA servers, performing data validation and transformation, and loading structured datasets to support analytics across 47 countries.',
-                    'Built and released an open-source QGIS plugin enabling direct ingestion of ODK/ONA data into QGIS, reducing manual data handling and improving efficiency in geospatial data management workflows.',
-                    'Designed and managed centralized geospatial databases using PostgreSQL/PostGIS, including schema design, user access management, and spatial data standardization for regional-scale analytics.'
-                ]
-            },
-            {
-                org: 'SOGEFI',
-                logo: 'images/SOGEFI2.jpg',
-                logoType: 'image',
-                role: 'Geomatic Project Manager',
-                date: 'August 2019 - May 2020',
-                achievements: [
-                    'Led a team of two (02) software developers in the design, development, testing, deployment, and scaling of an open-source geospatial data infrastructure (GeoOSM) built on OpenStreetMap data across twenty (20) African countries. Responsibilities included technical oversight, code review and troubleshooting, geospatial database design using PostgreSQL/PostGIS, QGIS Server management, and capacity building through advocacy, training, and technical support.',
-                    'Led a team of two developers in the development of a Humanitarian Rapid Response Mechanism (RRM) platform for Premier Urgence International and Action Against Hunger, supporting timely data collection, analysis, and decision-making in emergency response contexts.'
-                ]
-            }
-        ]
-    };
-
-    // Render categorized content
-    function renderCategoryContent(categoryData, containerId) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-
-        container.innerHTML = categoryData.map(org => {
-            const logoHtml = org.logoType === 'image'
-                ? `<div class="exp-category-org-logo"><img src="${org.logo}" alt="${org.org} Logo"></div>`
-                : `<div class="exp-category-org-logo text-logo"><span>${org.logo}</span></div>`;
-
-            const achievementsHtml = org.achievements.map(a => `<li>${a}</li>`).join('');
-
-            return `
-                <div class="exp-category-org">
-                    <div class="exp-category-org-header">
-                        ${logoHtml}
-                        <div class="exp-category-org-info">
-                            <h4>${org.role}</h4>
-                            <p>${org.org}</p>
-                            <span>${org.date}</span>
-                        </div>
-                    </div>
-                    <ul class="exp-category-achievements">${achievementsHtml}</ul>
+    function renderDisciplines() {
+        const counts = Object.fromEntries(roleKeys.map((k) => [k, D.projects.filter((p) => p.roles.includes(k)).length]));
+        // Spatial first: it is the headline title on the CV.
+        const order = ['spatial', 'engineer', 'analyst'];
+        $('#disciplineList').innerHTML = order.map((k, i) => {
+            const r = D.roles[k];
+            return `<a href="#all-work" class="discipline role-${k}" data-role="${k}" data-cursor="Filter">
+                <span class="discipline-num">(0${i + 1})</span>
+                <h3 class="discipline-title">${esc(r.label)}</h3>
+                <div class="discipline-body">
+                    <p>${esc(r.summary)}</p>
+                    <ul class="chips">${r.tools.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>
                 </div>
-            `;
+                <span class="discipline-cta"><span class="count-badge">${counts[k]}</span> projects <span class="discipline-arrow">→</span></span>
+            </a>`;
         }).join('');
     }
 
-    // Render all tabs
-    renderCategoryContent(categorizedExperience.geospatial, 'exp-geospatial');
-    renderCategoryContent(categorizedExperience.bi, 'exp-bi');
-    renderCategoryContent(categorizedExperience.de, 'exp-de');
+    function renderFeatured() {
+        $('#featuredList').innerHTML = D.featured.map((id, i) => {
+            const p = byId[id];
+            return `<li class="feat role-${p.roles[0]}" data-id="${id}" tabindex="0" role="button" aria-label="Open ${esc(p.title)}" data-cursor="Open">
+                <span class="feat-num">${String(i + 1).padStart(2, '0')}</span>
+                <span class="feat-title">${titleHTML(p.title)}</span>
+                <ul class="feat-roles chips">${roleChips(p.roles)}</ul>
+                <span class="feat-year">${esc(p.year)}</span>
+                ${p.image ? `<div class="feat-thumb">${mediaHTML(p)}</div>` : ''}
+            </li>`;
+        }).join('');
+    }
 
-    // Tab switching
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const tabId = btn.getAttribute('data-exp-tab');
+    function renderFilters() {
+        const rc = (k) => D.projects.filter((p) => p.roles.includes(k)).length;
+        $('#roleFilters').innerHTML =
+            `<button class="filter-btn is-active" data-role="all" aria-pressed="true">All<sup>${D.projects.length}</sup></button>` +
+            roleKeys.map((k) => `<button class="filter-btn role-${k}" data-role="${k}" aria-pressed="false">${esc(D.roles[k].label)}<sup>${rc(k)}</sup></button>`).join('');
+        $('#topicFilters').innerHTML =
+            `<button class="filter-btn is-active" data-topic="all" aria-pressed="true">All topics</button>` +
+            Object.entries(D.topics).map(([k, v]) => `<button class="filter-btn" data-topic="${k}" aria-pressed="false">${esc(v)}</button>`).join('');
+    }
 
-            tabBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+    // Interleave two image cards with one typographic cover so the grid reads as a rhythm, not two blocks.
+    function gridOrder() {
+        const img = D.projects.filter((p) => p.image);
+        const txt = D.projects.filter((p) => !p.image);
+        const out = [];
+        while (img.length || txt.length) {
+            out.push(...img.splice(0, 2));
+            if (txt.length) out.push(txt.shift());
+        }
+        return out;
+    }
 
-            tabContents.forEach(content => {
-                content.classList.remove('active');
-            });
+    function renderGrid() {
+        $('#projectGrid').innerHTML = gridOrder().map((p) => `
+            <article class="card role-${p.roles[0]}" data-id="${p.id}" data-roles="${p.roles.join(' ')}" data-topic="${p.topic}" data-cursor="View" tabindex="0" role="button" aria-label="Open ${esc(p.title)}">
+                <div class="card-media">${mediaHTML(p)}</div>
+                <div class="card-meta"><span>${esc(D.topics[p.topic])}</span><span>${esc(p.year)}</span></div>
+                <h3 class="card-title">${esc(p.title)}</h3>
+                <p class="card-summary">${esc(p.summary)}</p>
+                <ul class="card-roles chips">${roleChips(p.roles)}</ul>
+            </article>`).join('');
+    }
 
-            const targetMap = { geospatial: 'exp-geospatial', bi: 'exp-bi', de: 'exp-de' };
-            const target = document.getElementById(targetMap[tabId]);
-            if (target) target.classList.add('active');
+    function renderTimeline() {
+        $('#timeline').innerHTML = D.experience.map((j, i) => `
+            <article class="job${i === 0 ? ' is-open' : ''}">
+                <button class="job-head" aria-expanded="${i === 0}" aria-controls="job-${i}">
+                    <span class="job-period">${esc(j.period)}</span>
+                    <span class="job-logo"><img src="${esc(j.logo)}" alt="" loading="lazy"></span>
+                    <span class="job-title">${esc(j.role)}<span class="job-org">${esc(j.org)}</span></span>
+                    <ul class="job-roles chips">${j.roles.map((k) => `<li class="role-${k}">${esc(D.roles[k].short)}</li>`).join('')}</ul>
+                    <span class="job-toggle" aria-hidden="true">+</span>
+                </button>
+                <div class="job-body" id="job-${i}">
+                    <div class="job-body-inner">
+                        <div class="job-content"><div>
+                            ${j.place ? `<p class="job-place">${esc(j.place)}</p>` : ''}
+                            <p class="job-summary">${esc(j.summary)}</p>
+                            <ul class="job-list">${j.highlights.map((h) => `<li>${esc(h)}</li>`).join('')}</ul>
+                        </div></div>
+                    </div>
+                </div>
+            </article>`).join('');
+    }
+
+    function renderResearch() {
+        $('#pubList').innerHTML = D.publications.map((p) => `
+            <li class="pub reveal"><a href="${esc(p.url)}" target="_blank" rel="noopener">
+                <span class="pub-title">${esc(p.title)}</span>
+                ${p.sub ? `<span class="pub-sub">${esc(p.sub)}</span>` : ''}
+                <span class="pub-meta">${esc(p.venue)} · ${esc(p.year)}</span>
+                <span class="pub-arrow" aria-hidden="true">↗</span>
+            </a></li>`).join('');
+        $('#eduList').innerHTML = D.education.map((e) => `
+            <li class="edu reveal">
+                <span class="edu-degree">${esc(e.degree)}</span>
+                <span class="edu-year">${esc(e.year)}</span>
+                ${e.note ? `<span class="edu-note">${esc(e.note)}</span>` : ''}
+                <span class="edu-school">${esc(e.school)}</span>
+            </li>`).join('');
+        $('#certList').innerHTML = D.certifications.map((c) => `<li>${esc(c)}</li>`).join('');
+        $('#awardList').innerHTML = D.awards.map((a) => `<li>${esc(a)}</li>`).join('');
+    }
+
+    function renderArchive() {
+        $('#archiveList').innerHTML = D.archive.map((a, i) => a.image
+            ? `<li class="archive-item reveal"><button data-archive="${i}" data-cursor="Zoom">
+                    <span class="archive-title">${esc(a.title)}</span><span class="archive-kind">${esc(a.kind)}</span><span class="archive-icon">＋</span>
+               </button></li>`
+            : `<li class="archive-item reveal"><a href="${esc(a.url)}" target="_blank" rel="noopener" data-cursor="Open">
+                    <span class="archive-title">${esc(a.title)}</span><span class="archive-kind">${esc(a.kind)}</span><span class="archive-icon">↗</span>
+               </a></li>`).join('');
+        $('#countryNames').textContent = Object.values(D.countries).map((c) => c[0]).sort().join(' · ');
+    }
+
+    /* ======================================================================
+       Interactions
+       ====================================================================== */
+
+    function scrollToTarget(target) {
+        const el = typeof target === 'string' ? $(target) : target;
+        if (!el) return;
+        if (lenis) lenis.scrollTo(el, { offset: 0, duration: 1.4 });
+        else el.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
+    }
+
+    function initNav() {
+        const nav = $('.nav');
+        const toggle = $('.nav-toggle');
+        const menu = $('#menu');
+
+        $$('.nav-links a').forEach((a) => { a.innerHTML = `<span>${a.textContent}</span>`; });
+
+        const setMenu = (open) => {
+            toggle.setAttribute('aria-expanded', String(open));
+            toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+            menu.classList.toggle('is-open', open);
+            menu.setAttribute('aria-hidden', String(!open));
+            if (open) nav.classList.remove('is-hidden');
+            if (lenis) open ? lenis.stop() : lenis.start();
+        };
+        toggle.addEventListener('click', () => setMenu(toggle.getAttribute('aria-expanded') !== 'true'));
+
+        // Smooth anchor scrolling for all in-page links.
+        document.addEventListener('click', (e) => {
+            const a = e.target.closest('a[href^="#"]');
+            if (!a || a.classList.contains('discipline')) return;
+            const id = a.getAttribute('href');
+            if (id.length < 2 || !$(id)) return;
+            e.preventDefault();
+            setMenu(false);
+            scrollToTarget(id);
         });
-    });
-}
 
-/**
- * Animations Module
- * Handles scroll-triggered reveal animations
- */
-function initAnimations() {
-    // Add animation styles
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-        .reveal.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    `;
-    document.head.appendChild(style);
+        // Hide nav on scroll down, show on scroll up.
+        let lastY = window.scrollY;
+        window.addEventListener('scroll', () => {
+            const y = window.scrollY;
+            nav.classList.toggle('is-hidden', y > lastY && y > 300 && !menu.classList.contains('is-open'));
+            lastY = y;
+        }, { passive: true });
 
-    // Add reveal class to elements (excluding experience-items which use CSS animation)
-    const revealElements = document.querySelectorAll(
-        '.timeline-item, .skill-card, .publication-card, .portfolio-item, .domain-card, .tool-item'
-    );
+        // Active section indicator.
+        const links = $$('.nav-links a');
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach((en) => {
+                if (!en.isIntersecting) return;
+                links.forEach((l) => l.classList.toggle('is-active', l.getAttribute('href') === '#' + en.target.id));
+            });
+        }, { rootMargin: '-45% 0px -50% 0px' });
+        ['work', 'disciplines', 'experience', 'research', 'contact'].forEach((id) => { const s = $('#' + id); if (s) io.observe(s); });
+    }
 
-    revealElements.forEach((el, index) => {
-        el.classList.add('reveal');
-        el.style.transitionDelay = `${index % 6 * 0.1}s`;
-    });
+    function initRoleRotator() {
+        const words = $$('.role-word');
+        if (words.length < 2 || reducedMotion) return;
+        let i = 0;
+        setInterval(() => {
+            const cur = words[i];
+            i = (i + 1) % words.length;
+            const next = words[i];
+            cur.classList.remove('is-active');
+            cur.classList.add('is-leaving');
+            next.classList.remove('is-leaving');
+            next.classList.add('is-active');
+            setTimeout(() => cur.classList.remove('is-leaving'), 850);
+        }, 2600);
+    }
 
-    // Intersection Observer for reveal animations
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
+    /* ---------- Filters ---------- */
+    const filter = { role: 'all', topic: 'all' };
+
+    function applyFilter(animate = true) {
+        const cards = $$('#projectGrid .card');
+        const shown = [];
+        cards.forEach((c) => {
+            const ok = (filter.role === 'all' || c.dataset.roles.split(' ').includes(filter.role)) &&
+                (filter.topic === 'all' || c.dataset.topic === filter.topic);
+            c.hidden = !ok;
+            if (ok) shown.push(c);
+        });
+        $$('#roleFilters .filter-btn').forEach((b) => { const on = b.dataset.role === filter.role; b.classList.toggle('is-active', on); b.setAttribute('aria-pressed', on); });
+        $$('#topicFilters .filter-btn').forEach((b) => { const on = b.dataset.topic === filter.topic; b.classList.toggle('is-active', on); b.setAttribute('aria-pressed', on); });
+
+        const parts = [];
+        if (filter.role !== 'all') parts.push(D.roles[filter.role].label);
+        if (filter.topic !== 'all') parts.push(D.topics[filter.topic]);
+        $('#filterStatus').textContent = `Showing ${shown.length} project${shown.length === 1 ? '' : 's'}${parts.length ? ' · ' + parts.join(' · ') : ''}`;
+
+        if (MOTION && animate) {
+            gsap.fromTo(shown, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.04, ease: 'power3.out', overwrite: true });
+            ScrollTrigger.refresh();
+        }
+    }
+
+    function initFilters() {
+        $('#roleFilters').addEventListener('click', (e) => {
+            const b = e.target.closest('.filter-btn'); if (!b) return;
+            filter.role = b.dataset.role; applyFilter();
+        });
+        $('#topicFilters').addEventListener('click', (e) => {
+            const b = e.target.closest('.filter-btn'); if (!b) return;
+            filter.topic = b.dataset.topic; applyFilter();
+        });
+        $('#disciplineList').addEventListener('click', (e) => {
+            const d = e.target.closest('.discipline'); if (!d) return;
+            e.preventDefault();
+            filter.role = d.dataset.role; filter.topic = 'all';
+            applyFilter(false);
+            scrollToTarget('#all-work');
+            if (MOTION) setTimeout(() => applyFilter(true), 500);
+        });
+        applyFilter(false);
+    }
+
+    /* ---------- Modal & lightbox ---------- */
+    let lastFocus = null;
+
+    function openDialog(dlg) {
+        lastFocus = document.activeElement;
+        dlg.hidden = false;
+        document.body.style.overflow = 'hidden';
+        if (lenis) lenis.stop();
+        const panel = $('.modal-panel', dlg);
+        if (panel) panel.scrollTop = 0;
+        if (MOTION) {
+            gsap.fromTo($('.modal-backdrop', dlg) || dlg, { opacity: 0 }, { opacity: 1, duration: 0.4 });
+            if (panel) gsap.fromTo(panel, { xPercent: 100 }, { xPercent: 0, duration: 0.7, ease: 'expo.out' });
+        }
+        $('.modal-close', dlg).focus();
+    }
+
+    function closeDialog(dlg) {
+        const done = () => {
+            dlg.hidden = true;
+            document.body.style.overflow = '';
+            if (lenis) lenis.start();
+            const media = $('#modalMedia');
+            if (dlg.id === 'projectModal' && media) { media.innerHTML = ''; $('#modalMore').innerHTML = ''; } // stop any video
+            if (lastFocus) lastFocus.focus();
+        };
+        const panel = $('.modal-panel', dlg);
+        if (MOTION && panel) gsap.to(panel, { xPercent: 100, duration: 0.45, ease: 'power3.in', onComplete: done });
+        else done();
+    }
+
+    function openProject(id) {
+        const p = byId[id]; if (!p) return;
+        const media = $('#modalMedia');
+        if (p.video) {
+            media.innerHTML = `<iframe src="${esc(p.video)}" title="${esc(p.title)} — video" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe>`;
+        } else if (p.gallery) {
+            media.innerHTML = `<img src="${esc(p.gallery[0])}" alt="${esc(p.title)}">`;
+        } else {
+            media.innerHTML = mediaHTML(p, true);
+        }
+        // Remaining gallery images go below the text so the description stays near the top.
+        $('#modalMore').innerHTML = (p.gallery || []).slice(1)
+            .map((src, i) => `<img src="${esc(src)}" alt="${esc(p.title)} — figure ${i + 2}" loading="lazy">`).join('');
+        $('#modalKicker').textContent = [p.roles.map((r) => D.roles[r].label).join(' / '), D.topics[p.topic], p.year].join(' — ');
+        $('#modalTitle').innerHTML = titleHTML(p.title);
+        $('#modalDesc').textContent = p.description;
+        $('#modalTools').innerHTML = p.tools.map((t) => `<li>${esc(t)}</li>`).join('');
+        $('#modalLinks').innerHTML = (p.links || []).map((l) =>
+            `<a class="btn" href="${esc(l.url)}" target="_blank" rel="noopener"><span>${esc(l.label)} ↗</span></a>`).join('');
+        openDialog($('#projectModal'));
+    }
+
+    function initDialogs() {
+        const modal = $('#projectModal');
+        const lightbox = $('#lightbox');
+
+        document.addEventListener('click', (e) => {
+            const card = e.target.closest('.card, .feat');
+            if (card) { openProject(card.dataset.id); return; }
+            const arch = e.target.closest('[data-archive]');
+            if (arch) {
+                const a = D.archive[+arch.dataset.archive];
+                $('img', lightbox).src = a.image;
+                $('img', lightbox).alt = a.title;
+                $('figcaption', lightbox).textContent = `${a.title} — ${a.kind}`;
+                openDialog(lightbox);
             }
         });
-    }, {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    });
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            const item = e.target.closest && e.target.closest('.card, .feat');
+            if (item && item === e.target) { e.preventDefault(); openProject(item.dataset.id); }
+        });
 
-    revealElements.forEach(el => observer.observe(el));
-}
+        [modal, lightbox].forEach((dlg) => {
+            dlg.addEventListener('click', (e) => {
+                if (e.target.closest('[data-close]') || e.target === dlg) closeDialog(dlg);
+            });
+        });
+        document.addEventListener('keydown', (e) => {
+            const open = [modal, lightbox].find((d) => !d.hidden);
+            if (!open) return;
+            if (e.key === 'Escape') { closeDialog(open); return; }
+            if (e.key === 'Tab') { // keep focus inside the dialog
+                const f = $$('a[href], button, iframe', open).filter((x) => x.offsetParent !== null);
+                if (!f.length) return;
+                const first = f[0], last = f[f.length - 1];
+                if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+                else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+            }
+        });
+    }
 
+    /* ---------- Experience accordion ---------- */
+    function initTimeline() {
+        $('#timeline').addEventListener('click', (e) => {
+            const head = e.target.closest('.job-head'); if (!head) return;
+            const job = head.parentElement;
+            const open = !job.classList.contains('is-open');
+            job.classList.toggle('is-open', open);
+            head.setAttribute('aria-expanded', String(open));
+            if (hasGSAP) setTimeout(() => ScrollTrigger.refresh(), 650);
+        });
+    }
+
+    /* ---------- Countries map (lazy) ---------- */
+    function initCountriesMap() {
+        const el = $('#countriesMap');
+        if (!el || typeof L === 'undefined') return;
+        const io = new IntersectionObserver((entries, obs) => {
+            if (!entries[0].isIntersecting) return;
+            obs.disconnect();
+            const map = L.map(el, { scrollWheelZoom: false, worldCopyJump: false, zoomSnap: 0.25, minZoom: 1, maxZoom: 6, attributionControl: true })
+                .setView([15, 5], window.innerWidth < 700 ? 0.75 : 1.75);
+            map.attributionControl.setPrefix(false).addAttribution('Boundaries: <a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener">Natural Earth</a>');
+
+            // No basemap tiles: the world itself is drawn from Natural Earth, visited countries in white.
+            fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_110m_admin_0_countries.geojson')
+                .then((r) => r.json())
+                .then((geo) => {
+                    const base = { color: '#39424c', weight: 0.6, fillColor: '#1a2129', fillOpacity: 1 };
+                    const hit = { color: '#11161c', weight: 0.6, fillColor: '#4cc9a6', fillOpacity: 0.85 };
+                    L.geoJSON(geo, {
+                        style: (f) => (D.countries[f.properties.ADM0_A3] ? hit : base),
+                        onEachFeature: (f, layer) => {
+                            const c = D.countries[f.properties.ADM0_A3];
+                            if (!c) return;
+                            layer.bindTooltip(c[0], { className: 'country-tip', sticky: true });
+                            layer.on('mouseover', () => layer.setStyle({ fillOpacity: 0.6 }));
+                            layer.on('mouseout', () => layer.setStyle({ fillOpacity: 0.85 }));
+                        }
+                    }).addTo(map);
+                })
+                .catch(() => { /* markers still show the footprint */ });
+
+            const icon = L.divIcon({ className: 'country-marker', html: '<div class="marker-dot"></div>', iconSize: [10, 10], iconAnchor: [5, 5] });
+            const markers = Object.values(D.countries).map(([name, ll]) =>
+                L.marker(ll, { icon, keyboard: false }).bindTooltip(name, { className: 'country-tip' }).addTo(map));
+        }, { rootMargin: '300px' });
+        io.observe(el);
+    }
+
+    /* ---------- Hero contour canvas ---------- */
+    function initContours() {
+        const canvas = $('.hero-canvas');
+        if (!canvas || !canvas.getContext) return;
+        const ctx = canvas.getContext('2d');
+        const CELL = 16;
+        const LEVELS = [-1.2, -0.8, -0.4, 0, 0.4, 0.8, 1.2, 1.6];
+        // Role accents (spatial teal, engineer blue, analyst orange) as RGB for the contour strokes.
+        const HUES = ['76,201,166', '124,184,240', '242,166,90'];
+        let w, h, cols, rows, field, t = 0, visible = true, raf = 0, last = 0;
+        const mouse = { x: -9999, y: -9999, tx: -9999, ty: -9999 };
+
+        function resize() {
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            w = canvas.clientWidth; h = canvas.clientHeight;
+            canvas.width = w * dpr; canvas.height = h * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            cols = Math.ceil(w / CELL) + 1; rows = Math.ceil(h / CELL) + 1;
+            field = new Float32Array(cols * rows);
+        }
+
+        // Smooth pseudo-terrain from layered sinusoids + a "hill" that follows the pointer.
+        function height(x, y) {
+            const nx = x / w * 6, ny = y / h * 4;
+            let v = Math.sin(nx * 1.1 + t * 0.6) * Math.cos(ny * 1.3 - t * 0.4)
+                + 0.6 * Math.sin(nx * 2.3 - ny * 1.7 + t * 0.3)
+                + 0.35 * Math.cos(nx * 3.7 + ny * 2.9 - t * 0.5);
+            const dx = x - mouse.x, dy = y - mouse.y;
+            v += 1.6 * Math.exp(-(dx * dx + dy * dy) / 26000);
+            return v;
+        }
+
+        function draw() {
+            for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) field[j * cols + i] = height(i * CELL, j * CELL);
+            ctx.clearRect(0, 0, w, h);
+            LEVELS.forEach((lv, li) => {
+                ctx.beginPath();
+                ctx.strokeStyle = li === 4 ? `rgba(${HUES[0]},0.75)` : `rgba(${HUES[li % 3]},0.26)`;
+                ctx.lineWidth = li === 4 ? 1.4 : 0.8;
+                for (let j = 0; j < rows - 1; j++) {
+                    for (let i = 0; i < cols - 1; i++) {
+                        const a = field[j * cols + i], b = field[j * cols + i + 1];
+                        const c = field[(j + 1) * cols + i + 1], d = field[(j + 1) * cols + i];
+                        const idx = (a > lv ? 8 : 0) | (b > lv ? 4 : 0) | (c > lv ? 2 : 0) | (d > lv ? 1 : 0);
+                        if (idx === 0 || idx === 15) continue;
+                        const x = i * CELL, y = j * CELL;
+                        const lerp = (p, q) => (lv - p) / (q - p);
+                        const top = [x + CELL * lerp(a, b), y];
+                        const right = [x + CELL, y + CELL * lerp(b, c)];
+                        const bottom = [x + CELL * lerp(d, c), y + CELL];
+                        const left = [x, y + CELL * lerp(a, d)];
+                        const seg = (p, q) => { ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); };
+                        switch (idx) {
+                            case 1: case 14: seg(left, bottom); break;
+                            case 2: case 13: seg(bottom, right); break;
+                            case 3: case 12: seg(left, right); break;
+                            case 4: case 11: seg(top, right); break;
+                            case 5: seg(left, top); seg(bottom, right); break;
+                            case 6: case 9: seg(top, bottom); break;
+                            case 7: case 8: seg(left, top); break;
+                            case 10: seg(left, bottom); seg(top, right); break;
+                        }
+                    }
+                }
+                ctx.stroke();
+            });
+        }
+
+        function loop(now) {
+            raf = requestAnimationFrame(loop);
+            if (!visible || now - last < 33) return; // ~30fps is plenty for drifting contours
+            last = now;
+            t += 0.012;
+            mouse.x += (mouse.tx - mouse.x) * 0.08;
+            mouse.y += (mouse.ty - mouse.y) * 0.08;
+            draw();
+        }
+
+        resize();
+        window.addEventListener('resize', () => { resize(); draw(); });
+        if (reducedMotion) { draw(); return; }
+
+        const hero = $('.hero');
+        hero.addEventListener('pointermove', (e) => {
+            const r = canvas.getBoundingClientRect();
+            mouse.tx = e.clientX - r.left; mouse.ty = e.clientY - r.top;
+            if (mouse.x < -1000) { mouse.x = mouse.tx; mouse.y = mouse.ty; }
+        });
+        hero.addEventListener('pointerleave', () => { mouse.tx = -9999; mouse.ty = -9999; });
+        new IntersectionObserver((en) => { visible = en[0].isIntersecting; }).observe(hero);
+        document.addEventListener('visibilitychange', () => { visible = !document.hidden; });
+        raf = requestAnimationFrame(loop);
+    }
+
+    /* ======================================================================
+       Motion (GSAP + Lenis)
+       ====================================================================== */
+
+    function splitText() {
+        // Lines: split on <br> and wrap each in a mask.
+        $$('.split-lines').forEach((el) => {
+            const lines = el.innerHTML.split(/<br\s*\/?>/i);
+            el.innerHTML = lines.map((l) => `<span class="line"><span class="line-inner">${l.trim()}</span></span>`).join('');
+        });
+        // Words: wrap each word in a mask.
+        $$('.split-words').forEach((el) => {
+            el.innerHTML = el.textContent.trim().split(/\s+/).map((w) => `<span class="word"><span class="word-inner">${esc(w)}</span></span>`).join(' ');
+        });
+    }
+
+    function initLenis() {
+        if (typeof window.Lenis === 'undefined') return;
+        lenis = new window.Lenis({ duration: 1.15, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smoothWheel: true });
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time) => lenis.raf(time * 1000));
+        gsap.ticker.lagSmoothing(0);
+    }
+
+    function initPreloader(onDone) {
+        const pre = $('.preloader');
+        const count = $('.preloader-count');
+        const obj = { v: 0 };
+        const seen = (() => { try { return sessionStorage.getItem('dd-seen') === '1'; } catch (e) { return false; } })();
+        const tl = gsap.timeline({ onComplete: () => { pre.remove(); onDone(); } });
+        if (seen) {
+            tl.to(pre, { opacity: 0, duration: 0.3 });
+        } else {
+            tl.to(obj, { v: 100, duration: 1.4, ease: 'power2.inOut', onUpdate: () => { count.textContent = Math.round(obj.v); } })
+                .to(pre, { yPercent: -100, duration: 0.9, ease: 'expo.inOut' }, '+=0.1');
+        }
+        try { sessionStorage.setItem('dd-seen', '1'); } catch (e) { /* storage blocked: preloader shows every visit */ }
+    }
+
+    function heroIntro() {
+        const tl = gsap.timeline();
+        tl.to('.hero .line-inner', { yPercent: 0, y: 0, duration: 1.2, stagger: 0.1, ease: 'expo.out' })
+            .fromTo('.hero-eyebrow', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, '-=0.9')
+            .fromTo('.hero-meta', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' }, '-=0.8');
+    }
+
+    function initScrollAnimations() {
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Generic reveals
+        ScrollTrigger.batch('.reveal', {
+            start: 'top 88%',
+            onEnter: (els) => gsap.to(els, { opacity: 1, y: 0, duration: 1, stagger: 0.08, ease: 'power3.out', overwrite: true })
+        });
+
+        // Masked line headings (outside the hero)
+        $$('.split-lines').forEach((h) => {
+            gsap.from($$('.line-inner', h), {
+                yPercent: 105, duration: 1.1, stagger: 0.08, ease: 'expo.out',
+                scrollTrigger: { trigger: h, start: 'top 85%' }
+            });
+        });
+        $$('.split-words').forEach((p) => {
+            gsap.from($$('.word-inner', p), {
+                yPercent: 110, duration: 0.9, stagger: 0.02, ease: 'power3.out',
+                scrollTrigger: { trigger: p, start: 'top 85%' }
+            });
+        });
+
+        // Clip-reveal portrait with inner parallax
+        $$('.reveal-clip').forEach((fig) => {
+            gsap.to(fig, { clipPath: 'inset(0% 0 0 0)', duration: 1.4, ease: 'expo.inOut', scrollTrigger: { trigger: fig, start: 'top 80%' } });
+            const img = $('img', fig);
+            if (img) gsap.fromTo(img, { yPercent: -6 }, { yPercent: 6, ease: 'none', scrollTrigger: { trigger: fig, scrub: true } });
+        });
+
+        // Hero parallax out
+        gsap.to('.hero-inner', { yPercent: -18, opacity: 0.2, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
+
+        // Stagger-in rows & cards
+        const staggerIn = (sel, trigger) => gsap.from(sel, {
+            y: 50, opacity: 0, duration: 0.9, stagger: 0.07, ease: 'power3.out',
+            scrollTrigger: { trigger, start: 'top 82%' }
+        });
+        staggerIn('.discipline', '#disciplineList');
+        staggerIn('.feat', '#featuredList');
+        staggerIn('.job', '#timeline');
+        ScrollTrigger.batch('#projectGrid .card', {
+            start: 'top 92%',
+            onEnter: (els) => gsap.fromTo(els, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.8, stagger: 0.06, ease: 'power3.out' })
+        });
+
+        // Counters
+        $$('.count').forEach((c) => {
+            const to = +c.dataset.to;
+            const o = { v: 0 };
+            gsap.to(o, {
+                v: to, duration: 2, ease: 'power2.out',
+                scrollTrigger: { trigger: c, start: 'top 90%' },
+                onUpdate: () => { c.textContent = Math.round(o.v); }
+            });
+        });
+
+        // Big contact headline
+        gsap.from('.contact-big .line-inner', {
+            yPercent: 105, duration: 1.2, stagger: 0.1, ease: 'expo.out',
+            scrollTrigger: { trigger: '.contact-big', start: 'top 85%' }
+        });
+    }
+
+    function initMarquee() {
+        const track = $('.marquee-track');
+        const half = () => track.scrollWidth / 2;
+        let x = 0, speed = 1, dir = -1;
+        if (lenis) {
+            lenis.on('scroll', (e) => {
+                speed = 1 + Math.min(Math.abs(e.velocity) * 0.25, 8);
+                if (e.direction) dir = e.direction > 0 ? -1 : 1;
+            });
+        }
+        gsap.ticker.add(() => {
+            x += dir * speed * 0.8;
+            const w = half();
+            if (x <= -w) x += w;
+            if (x > 0) x -= w;
+            track.style.transform = `translate3d(${x}px,0,0)`;
+            speed += (1 - speed) * 0.05;
+        });
+    }
+
+    function initCursor() {
+        if (!finePointer) return;
+        const cursor = $('.cursor');
+        const label = $('.cursor-label');
+        const preview = $('.hover-preview');
+        const xTo = gsap.quickTo(cursor, 'x', { duration: 0.18, ease: 'power3' });
+        const yTo = gsap.quickTo(cursor, 'y', { duration: 0.18, ease: 'power3' });
+        const pxTo = gsap.quickTo(preview, 'x', { duration: 0.6, ease: 'power3' });
+        const pyTo = gsap.quickTo(preview, 'y', { duration: 0.6, ease: 'power3' });
+
+        window.addEventListener('pointermove', (e) => { xTo(e.clientX); yTo(e.clientY); pxTo(e.clientX); pyTo(e.clientY); });
+
+        document.addEventListener('pointerover', (e) => {
+            const t = e.target.closest('[data-cursor], a, button');
+            cursor.classList.toggle('is-hover', !!t && !t.dataset.cursor);
+            cursor.classList.toggle('is-label', !!(t && t.dataset.cursor));
+            label.textContent = t && t.dataset.cursor ? t.dataset.cursor : '';
+        });
+
+        // Featured list: image (or typographic cover) follows the cursor.
+        $$('.feat').forEach((row) => {
+            row.addEventListener('pointerenter', () => {
+                const p = byId[row.dataset.id];
+                preview.innerHTML = mediaHTML(p, true);
+                preview.classList.add('is-visible');
+            });
+            row.addEventListener('pointerleave', () => preview.classList.remove('is-visible'));
+        });
+    }
+
+    function initMagnetic() {
+        if (!finePointer) return;
+        $$('.magnetic').forEach((el) => {
+            const xTo = gsap.quickTo(el, 'x', { duration: 0.5, ease: 'elastic.out(1, 0.4)' });
+            const yTo = gsap.quickTo(el, 'y', { duration: 0.5, ease: 'elastic.out(1, 0.4)' });
+            el.addEventListener('pointermove', (e) => {
+                const r = el.getBoundingClientRect();
+                xTo((e.clientX - r.left - r.width / 2) * 0.3);
+                yTo((e.clientY - r.top - r.height / 2) * 0.4);
+            });
+            el.addEventListener('pointerleave', () => { xTo(0); yTo(0); });
+        });
+    }
+
+    /* ======================================================================
+       Boot
+       ====================================================================== */
+    function boot() {
+        renderMarquee();
+        renderDisciplines();
+        renderFeatured();
+        renderFilters();
+        renderGrid();
+        renderTimeline();
+        renderResearch();
+        renderArchive();
+        const yr = $('#year'); if (yr) yr.textContent = new Date().getFullYear();
+
+        initNav();
+        initFilters();
+        initDialogs();
+        initTimeline();
+        initRoleRotator();
+        initCountriesMap();
+        initContours();
+
+        if (!MOTION) return;
+
+        splitText();
+        initLenis();
+        initScrollAnimations();
+        initMarquee();
+        initCursor();
+        initMagnetic();
+        initPreloader(heroIntro);
+        window.addEventListener('load', () => ScrollTrigger.refresh());
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+    else boot();
+})();
